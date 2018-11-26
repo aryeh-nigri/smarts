@@ -47,6 +47,7 @@ void Parallelism::externalFunctions(void interrupt ( *timerInterruptHandler)(...
 		schedCopy[i]=contextSched.stack[i];
 }
 
+//TODO adicionar zman machzor e quantas vezes quer rodar
 int Parallelism::declareTask(void far *code, char name)
 		// Insert a new task entry in SMARTS context array [ ]
 {
@@ -109,6 +110,7 @@ void Parallelism::callScheduler( )
 	asm int timerInt;
 }
 
+//TODO restoreSchedTask()
 void Parallelism::restoreSchedStack( )
 	// Restore the scheduler stack
 {

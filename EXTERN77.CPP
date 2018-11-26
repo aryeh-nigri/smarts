@@ -11,6 +11,7 @@
 Parallelism SMARTS;
 static unsigned StackSegAct, StackPtrAct;
 
+//TODO TEM QUE MUDAR ISSO AI
 /**********    EXTERNAL FUNCTION     **********/
 void far interrupt timerInterruptHandler(...)
 // This function is called 18.2 times per second ( every ~~ 55 millisec).

@@ -5,21 +5,45 @@
 /* SchedAlgo64.CPP, short-term scheduler algorithms                */
 /****************************************************************/
 
-
 #include "smarts77.h"
 
-int roundRobin( )
-// Round Robin short-term algorithm 
+int roundRobin()
+// Round Robin short-term algorithm
 {
 	int count;
-	int nextTask = (SMARTS.getCurrentTask()+1)%SMARTS.getTotalTasks( );
-	for (count=0;
-	     SMARTS.getStatus(nextTask)!=READY && count<SMARTS.getTotalTasks( );
-	     count++)
-	     nextTask=++nextTask%SMARTS.getTotalTasks( );
-	if (count == SMARTS.getTotalTasks( ))	// no found READY task to run
-		nextTask = SMARTS.getTotalTasks( );
+	int nextTask = (SMARTS.getCurrentTask() + 1) % SMARTS.getTotalTasks();
+	for (count = 0;
+		 SMARTS.getStatus(nextTask) != READY && count < SMARTS.getTotalTasks();
+		 count++)
+		nextTask = ++nextTask % SMARTS.getTotalTasks();
+	if (count == SMARTS.getTotalTasks()) // no found READY task to run
+		nextTask = SMARTS.getTotalTasks();
 	return nextTask;
 }
 
+int EDF()
+{
+	int count, nextTask, currentPeriod;
+	int currentTask = SMARTS.getCurrentTask();
+	int minPeriod = currentTask.getPeriod();
 
+	for (count = 0; count < SMARTS.getTotalTasks(); count++)
+	{
+		currentTask = (currentTask + 1) % SMARTS.getTotalTasks();
+
+		currentPeriod = currentTask.getPeriod();
+
+		if (currentPeriod < minPeriod)
+		{
+			minPeriod = currentPeriod;
+			nextTask = currentTask;
+		}
+	}
+
+	if(nextTask == SMARTS.getCurrentTask()){
+		return -1;
+		//TAKALA
+	}
+
+	return nextTask;
+}
