@@ -6,6 +6,7 @@
 /* EXTERN77.CPP, holds all external functions                    */
 /*****************************************************************/
 #include "smarts77.h"
+#include <stdlib.h>
 
 /**********    GLOBAL Variables    **********/
 Parallelism SMARTS;
@@ -21,6 +22,12 @@ void far interrupt timerInterruptHandler(...)
 	asm	mov	StackSegAct,ax;
 
 	SMARTS.timerClocksEnd = getTimerClocks( );
+
+	//*
+	for (int count = 0; count < SMARTS.getTotalTasks(); count++){
+		SMARTS.incrPriority(count);
+	}
+	//*
 
 			// if it was called by the timer interrupt (hardware source),
 			// it calls the original BIOS routine. not to change the PC work.
@@ -72,6 +79,14 @@ void scheduler( )	// this also a parallel task
 				SMARTS.setDeadlock();
 			}
 	}
+
+	//*
+	if(nextTask == SMARTS.getCurrentTask()){
+		//! TAKALA
+		cout << "\nError on the periodic tasks!\n";
+		exit(-1);
+	}
+	//*
 		// ok to run a next task
 	SMARTS.setCurrentTask(nextTask);
 

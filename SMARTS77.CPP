@@ -42,18 +42,18 @@ void Parallelism::externalFunctions(void interrupt ( *timerInterruptHandler)(...
 	this->scheduler = scheduler;
 	this->userTaskEnd = userTaskEnd;
 	this->algorithm = algorithm;
-	contextSched.declare(scheduler, userTaskEnd, 'S'); // prepare the stack of the scheduler task
+	contextSched.declare(scheduler, userTaskEnd, 'S', 0, 1); // prepare the stack of the scheduler task
 	for (int i=MaxStack-1; i >= (MaxStack-14); i--)
 		schedCopy[i]=contextSched.stack[i];
 }
 
 //TODO adicionar zman machzor e quantas vezes quer rodar
-int Parallelism::declareTask(void far *code, char name)
+int Parallelism::declareTask(void far *code, char name, int period, int cycles)
 		// Insert a new task entry in SMARTS context array [ ]
 {
 	if (totalTasks < MaxTask-1) 
 	{
-		context[totalTasks++].declare(code, userTaskEnd, name);
+		context[totalTasks++].declare(code, userTaskEnd, name, period, cycles);
 		++activeTasks;
 		return true;
 	}
@@ -247,6 +247,30 @@ void Parallelism::incrPriority(int taskNum )
 	if (taskNum < totalTasks)
 		context[taskNum].incrPriority();
 }
+//*
+int Parallelism::getCurrentPriority(int taskNum){
+	if (taskNum < totalTasks)
+		return context[taskNum].getCurrentPriority();
+	else{
+		return MAXINT;
+	}
+}
+//*
+//*
+void Parallelism::decreaseCycles(int taskNum){
+	if (taskNum < totalTasks)
+		context[taskNum].decreaseCycles();
+}
+//*
+//*
+int Parallelism::getCycles(int taskNum){
+	if (taskNum < totalTasks)
+		return context[taskNum].getCycles();
+	else{
+		return 0;
+	}
+}
+//*
 void Parallelism::setOriginalPriority(int taskNum )
 {
 	if (taskNum < totalTasks)
@@ -328,10 +352,17 @@ void Parallelism::handleTimers()
 
 }
 
-void Parallelism::taskEnd( )
+void Parallelism::taskEnd()
 	// This function is called after the last operation of a task, instead of function return
 {
-	SMARTS.setCurrentNotActive();
+	//*
+	if(SMARTS.getCycles(SMARTS.getCurrentTask()) > 0){
+		SMARTS.decreaseCycles(SMARTS.getCurrentTask());
+	}
+	else{
+		SMARTS.setCurrentNotActive();
+	}
+	//*
 	SMARTS.callScheduler();	// return the control to the scheduler to run a next task
 }
 
@@ -354,7 +385,8 @@ Task::Task()
 	currentPriority=priority=0;
 }
 //-----------------------------------------------------
-void Task::declare(void far *code, void far *userTaskEnd, char name)
+//TODO
+void Task::declare(void far *code, void far *userTaskEnd, char name, int period, int cycles)
 {
 	stack[MaxStack-5]=FP_OFF(code);
 	stack[MaxStack-4]=FP_SEG(code);
@@ -362,17 +394,46 @@ void Task::declare(void far *code, void far *userTaskEnd, char name)
 	stack[MaxStack-2]=FP_OFF(userTaskEnd);
 	stack[MaxStack-1]=FP_SEG(userTaskEnd);
 	this->name= name;
+	this->priority = period;
+	this->currentPriority = period;
+	this->cycles = cycles;
+	this->currentCycles = cycles;
 	status = READY;
 }
 //----------------------------------------------------
 void Task::incrPriority( )
 {
  	--currentPriority;
+	//*
+	cout<<"\nTask::incrPriority";
+	//*
 }
+//----------------------------------------------------
+//*
+int Task::getCurrentPriority(){
+	return currentPriority;
+}
+//*
+//----------------------------------------------------
+//*
+void Task::decreaseCycles(){
+	--currentCycles;
+	cout<<"\nTask::decreaseCycles";
+}
+//*
+//----------------------------------------------------
+//*
+int Task::getCycles(){
+	return currentCycles;
+}
+//*
 //----------------------------------------------------
 void Task::setOriginalPriority( )
 {
 	currentPriority = priority;
+	//*
+	cout<<"\nTask::setOriginalPriority";
+	//*
 }
 //----------------------------------------------------
 void Task::sleepDecr( )

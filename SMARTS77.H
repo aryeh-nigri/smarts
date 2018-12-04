@@ -52,15 +52,23 @@ public:
 	unsigned stackSeg, stackPtr;    // the stack pointer
 	int currentPriority;            // the priority of the task
 	int priority;                   // the original priority
+	//*
+	int cycles;                     // the original cycles
+	int currentCycles;              // the remaining cycles of the task
+	//*
 	taskStatus status;              // the status of the task
 	Event *expectedEvent;           // the event that this task is waiting for
 	int sleepCount;                 // the sleep remainder time
 	Task();
-	void declare(void far *code, void far *taskEnd, char name);
+	void declare(void far *code, void far *taskEnd, char name, int period, int cycles);
 	void sleepDecr();
 	void incrPriority();
 	void setOriginalPriority();
-
+	//*
+	int getCurrentPriority();
+	void decreaseCycles();
+	int getCycles();
+	//*
 };
 //                           Main class
 class Parallelism
@@ -94,7 +102,9 @@ public:
 	void externalFunctions(void interrupt ( *timerInterruptHandler)(...),
 				   void far *scheduler, void far *userTaskEnd,
 				   int far (*algorithm)());
-	int declareTask(void far *code, char name); // inserts a new task entry
+	//*
+	int declareTask(void far *code, char name, int period, int cycles); // inserts a new task entry
+	//*
 	void runTheTasks();// start running the tasks
 	void callScheduler();          // return to the control to the scheduler
 	void restoreSchedStack();       // restore the 'scheduler' stack
@@ -118,7 +128,12 @@ public:
 	void resume(char taskName);
 	void setCurrentNotActive();
 	void suspended();
-	void incrPriority(int taskNum );
+	void incrPriority(int taskNum);
+	//*
+	int getCurrentPriority(int taskNum);
+	void decreaseCycles(int taskNum);
+	int getCycles(int taskNum);
+	//*
 	void setOriginalPriority(int taskNum );
 	void setCurrentOriginalPriority();
 	Event *getExpectedEvent(int taskNum);
@@ -142,6 +157,9 @@ void scheduler();
 void myTaskEnd();
 	// 'short term' scheduler algorithms 
 int roundRobin();
+// EDF algorithm
+int EDF();
+//
 	// main scheduler object
 extern Parallelism SMARTS;
 

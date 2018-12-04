@@ -25,24 +25,18 @@ int EDF()
 {
 	int count, nextTask, currentPeriod;
 	int currentTask = SMARTS.getCurrentTask();
-	int minPeriod = currentTask.getPeriod();
+	int minPeriod = SMARTS.getCurrentPriority(currentTask);
 
 	for (count = 0; count < SMARTS.getTotalTasks(); count++)
 	{
 		currentTask = (currentTask + 1) % SMARTS.getTotalTasks();
+		currentPeriod = SMARTS.getCurrentPriority(currentTask);
 
-		currentPeriod = currentTask.getPeriod();
-
-		if (currentPeriod < minPeriod)
+		if (SMARTS.getStatus(currentTask) == READY && currentPeriod < minPeriod)
 		{
 			minPeriod = currentPeriod;
 			nextTask = currentTask;
 		}
-	}
-
-	if(nextTask == SMARTS.getCurrentTask()){
-		return -1;
-		//TAKALA
 	}
 
 	return nextTask;
