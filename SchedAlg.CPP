@@ -16,7 +16,7 @@ int roundRobin()
 		 SMARTS.getStatus(nextTask) != READY && count < SMARTS.getTotalTasks();
 		 count++)
 		nextTask = ++nextTask % SMARTS.getTotalTasks();
-	if (count == SMARTS.getTotalTasks()) // no found READY task to run
+	if (count == SMARTS.getTotalTasks()) // not found READY task to run
 		nextTask = SMARTS.getTotalTasks();
 	return nextTask;
 }

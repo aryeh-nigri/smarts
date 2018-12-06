@@ -33,18 +33,18 @@ Parallelism::Parallelism()
 	endOfTimeSlice = true;
 }
 
-void Parallelism::externalFunctions(void interrupt ( *timerInterruptHandler)(...),
-				    void far *scheduler, void far *userTaskEnd,
-				    int far (*algorithm)( ))
-		// Sets the external functions
+void Parallelism::externalFunctions(void interrupt (*timerInterruptHandler)(...),
+									void far *scheduler, void far *userTaskEnd,
+									int far (*algorithm)())
+// Sets the external functions
 {
 	this->timerInterruptHandler = timerInterruptHandler;
 	this->scheduler = scheduler;
 	this->userTaskEnd = userTaskEnd;
 	this->algorithm = algorithm;
 	contextSched.declare(scheduler, userTaskEnd, 'S', 0, 1); // prepare the stack of the scheduler task
-	for (int i=MaxStack-1; i >= (MaxStack-14); i--)
-		schedCopy[i]=contextSched.stack[i];
+	for (int i = MaxStack - 1; i >= (MaxStack - 14); i--)
+		schedCopy[i] = contextSched.stack[i];
 }
 
 //TODO adicionar zman machzor e quantas vezes quer rodar
@@ -244,13 +244,15 @@ void Parallelism::suspended()
 
 void Parallelism::incrPriority(int taskNum )
 {
-	if (taskNum < totalTasks)
-		context[taskNum].incrPriority();
+	if (taskNum < totalTasks){
+		context[taskNum].currentPriority = context[taskNum].currentPriority - 1;
+		cout<<"\nParallelism::incrPriority";
+	}
 }
 //*
 int Parallelism::getCurrentPriority(int taskNum){
 	if (taskNum < totalTasks)
-		return context[taskNum].getCurrentPriority();
+		return context[taskNum].currentPriority;
 	else{
 		return MAXINT;
 	}
@@ -258,14 +260,16 @@ int Parallelism::getCurrentPriority(int taskNum){
 //*
 //*
 void Parallelism::decreaseCycles(int taskNum){
-	if (taskNum < totalTasks)
-		context[taskNum].decreaseCycles();
+	if (taskNum < totalTasks){
+		context[taskNum].currentCycles = context[taskNum].currentCycles - 1;
+		cout<<"\nParallelism::decreaseCycles";
+	}
 }
 //*
 //*
 int Parallelism::getCycles(int taskNum){
 	if (taskNum < totalTasks)
-		return context[taskNum].getCycles();
+		return context[taskNum].currentCycles;
 	else{
 		return 0;
 	}
@@ -273,13 +277,15 @@ int Parallelism::getCycles(int taskNum){
 //*
 void Parallelism::setOriginalPriority(int taskNum )
 {
-	if (taskNum < totalTasks)
-		context[taskNum].setOriginalPriority();
+	if (taskNum < totalTasks){
+		context[taskNum].currentPriority = context[taskNum].priority;
+		cout<<"\nParallelism::setOriginalPriority";
+	}
 }
 
 void Parallelism::setCurrentOriginalPriority()
 {
-	context[currentTask].setOriginalPriority();
+	context[currentTask].currentPriority = context[currentTask].priority;
 }
 
 Event *Parallelism::getExpectedEvent(int taskNum)    
@@ -356,44 +362,47 @@ void Parallelism::taskEnd()
 	// This function is called after the last operation of a task, instead of function return
 {
 	//*
-	if(SMARTS.getCycles(SMARTS.getCurrentTask()) > 0){
-		SMARTS.decreaseCycles(SMARTS.getCurrentTask());
-	}
-	else{
-		SMARTS.setCurrentNotActive();
-	}
+	SMARTS.setCurrentNotActive();
+	SMARTS.decreaseCycles(SMARTS.getCurrentTask());
+	SMARTS.setCurrentOriginalPriority();
 	//*
+	// if(SMARTS.getCycles(SMARTS.getCurrentTask()) > 0){
+	// 	SMARTS.decreaseCycles(SMARTS.getCurrentTask());
+	// }
+	// else{
+	// 	SMARTS.setCurrentNotActive();
+	// }
 	SMARTS.callScheduler();	// return the control to the scheduler to run a next task
 }
 
 /**********    class body:  Task     **********/
 Task::Task()
 {
-	stack[MaxStack-14]=_BP;
-	stack[MaxStack-13]=_DI;
-	stack[MaxStack-12]=_SI;
-	stack[MaxStack-11]=_DS;
-	stack[MaxStack-10]=_ES;
-	stack[MaxStack-9]=_DX;
-	stack[MaxStack-8]=_CX;
-	stack[MaxStack-7]=_BX;
-	stack[MaxStack-6]=_AX;
-	stackSeg=FP_SEG(&stack[MaxStack-14]);
-	stackPtr=FP_OFF(&stack[MaxStack-14]);
+	stack[MaxStack - 14] = _BP;
+	stack[MaxStack - 13] = _DI;
+	stack[MaxStack - 12] = _SI;
+	stack[MaxStack - 11] = _DS;
+	stack[MaxStack - 10] = _ES;
+	stack[MaxStack - 9] = _DX;
+	stack[MaxStack - 8] = _CX;
+	stack[MaxStack - 7] = _BX;
+	stack[MaxStack - 6] = _AX;
+	stackSeg = FP_SEG(&stack[MaxStack - 14]);
+	stackPtr = FP_OFF(&stack[MaxStack - 14]);
 	status = NOT_ACTIVE;
 	sleepCount = 0;
-	currentPriority=priority=0;
+	currentPriority = priority = 0;
 }
 //-----------------------------------------------------
 //TODO
 void Task::declare(void far *code, void far *userTaskEnd, char name, int period, int cycles)
 {
-	stack[MaxStack-5]=FP_OFF(code);
-	stack[MaxStack-4]=FP_SEG(code);
-	stack[MaxStack-3]=_FLAGS;
-	stack[MaxStack-2]=FP_OFF(userTaskEnd);
-	stack[MaxStack-1]=FP_SEG(userTaskEnd);
-	this->name= name;
+	stack[MaxStack - 5] = FP_OFF(code);
+	stack[MaxStack - 4] = FP_SEG(code);
+	stack[MaxStack - 3] = _FLAGS;
+	stack[MaxStack - 2] = FP_OFF(userTaskEnd);
+	stack[MaxStack - 1] = FP_SEG(userTaskEnd);
+	this->name = name;
 	this->priority = period;
 	this->currentPriority = period;
 	this->cycles = cycles;
@@ -401,45 +410,45 @@ void Task::declare(void far *code, void far *userTaskEnd, char name, int period,
 	status = READY;
 }
 //----------------------------------------------------
-void Task::incrPriority( )
+// void Task::incrPriority( )
+// {
+//  	--currentPriority;
+// 	//*
+// 	cout<<"\nTask::incrPriority";
+// 	//*
+// }
+//----------------------------------------------------
+//*
+// int Task::getCurrentPriority(){
+// 	return currentPriority;
+// }
+//*
+//----------------------------------------------------
+//*
+// void Task::decreaseCycles(){
+// 	--currentCycles;
+// 	cout<<"\nTask::decreaseCycles";
+// }
+//*
+//----------------------------------------------------
+//*
+// int Task::getCycles(){
+// 	return currentCycles;
+// }
+//*
+//----------------------------------------------------
+// void Task::setOriginalPriority( )
+// {
+// 	currentPriority = priority;
+// 	//*
+// 	cout<<"\nTask::setOriginalPriority";
+// 	//*
+// }
+//----------------------------------------------------
+void Task::sleepDecr()
+// Decrements the sleep counter and update the task status accordingly
 {
- 	--currentPriority;
-	//*
-	cout<<"\nTask::incrPriority";
-	//*
-}
-//----------------------------------------------------
-//*
-int Task::getCurrentPriority(){
-	return currentPriority;
-}
-//*
-//----------------------------------------------------
-//*
-void Task::decreaseCycles(){
-	--currentCycles;
-	cout<<"\nTask::decreaseCycles";
-}
-//*
-//----------------------------------------------------
-//*
-int Task::getCycles(){
-	return currentCycles;
-}
-//*
-//----------------------------------------------------
-void Task::setOriginalPriority( )
-{
-	currentPriority = priority;
-	//*
-	cout<<"\nTask::setOriginalPriority";
-	//*
-}
-//----------------------------------------------------
-void Task::sleepDecr( )
-	// Decrements the sleep counter and update the task status accordingly
-{	
-	if (status==SLEEP)
+	if (status == SLEEP)
 	{
 		if (sleepCount > 0)
 			--sleepCount;
@@ -447,5 +456,3 @@ void Task::sleepDecr( )
 			status = READY;
 	}
 }
-
-

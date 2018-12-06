@@ -25,7 +25,20 @@ void far interrupt timerInterruptHandler(...)
 
 	//*
 	for (int count = 0; count < SMARTS.getTotalTasks(); count++){
+		if(SMARTS.getCycles(count) == 0){
+			continue;
+		}
 		SMARTS.incrPriority(count);
+		if(SMARTS.getCurrentPriority(count) == 0){
+			if(SMARTS.getStatus(count) == READY){
+				cout << "\nError handling periodic tasks!\n";
+				exit(1);
+			}
+			else{
+				//? make it active here?
+			}
+		}
+		cout << "Period of task " << SMARTS.getName(count) << " is " << SMARTS.getCurrentPriority(count) << endl;
 	}
 	//*
 
@@ -66,7 +79,8 @@ void scheduler( )	// this also a parallel task
 	int nextTask, i;
 
 		// calling to the 'short term scheduler' algorithm
-	nextTask = SMARTS.algorithm( );
+	nextTask = SMARTS.algorithm();
+	cout << "Next Task TO BE is " << SMARTS.getName(nextTask) << endl;
 
 		// checking for 'deadlock' : not found task to run and tasks remain suspended
 	if (nextTask == SMARTS.getTotalTasks() && 
@@ -80,15 +94,16 @@ void scheduler( )	// this also a parallel task
 			}
 	}
 
-	//*
-	if(nextTask == SMARTS.getCurrentTask()){
-		//! TAKALA
-		cout << "\nError on the periodic tasks!\n";
-		exit(-1);
-	}
-	//*
+	// //*
+	// if(nextTask == SMARTS.getCurrentTask()){
+	// 	//! TAKALA
+	// 	cout << "\nError on the periodic tasks!\n";
+	// 	exit(-1);
+	// }
+	// //*
 		// ok to run a next task
 	SMARTS.setCurrentTask(nextTask);
+	cout << "Next Task is " << SMARTS.getCurrentName() << endl;
 
 		//  'dispatcher' to restore the next task stack addr and registers
 	SMARTS.getCurrentStack(StackSegAct,StackPtrAct);
