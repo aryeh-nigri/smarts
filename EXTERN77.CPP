@@ -17,6 +17,7 @@ static unsigned StackSegAct, StackPtrAct;
 void far interrupt timerInterruptHandler(...)
 // This function is called 18.2 times per second ( every ~~ 55 millisec).
 {
+	cout << "Entering timerInterruptHandler" << endl;
 	asm	mov	StackPtrAct,sp; 	// get the stack addr of the task interrupted
 	asm	mov	ax,ss;		// by the clock or by a Program interrupt
 	asm	mov	StackSegAct,ax;
@@ -25,6 +26,7 @@ void far interrupt timerInterruptHandler(...)
 
 	//*
 	for (int count = 0; count < SMARTS.getTotalTasks(); count++){
+		cout << "Looking at Task " << SMARTS.getName(count) << endl;
 		if(SMARTS.getCycles(count) == 0){
 			continue;
 		}

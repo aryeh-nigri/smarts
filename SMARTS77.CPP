@@ -42,9 +42,12 @@ void Parallelism::externalFunctions(void interrupt (*timerInterruptHandler)(...)
 	this->scheduler = scheduler;
 	this->userTaskEnd = userTaskEnd;
 	this->algorithm = algorithm;
-	contextSched.declare(scheduler, userTaskEnd, 'S', 0, 1); // prepare the stack of the scheduler task
+	cout << "Starting Task contextSched" << endl;
+	contextSched.declare(scheduler, userTaskEnd, 'S', 0, 0); // prepare the stack of the scheduler task
 	for (int i = MaxStack - 1; i >= (MaxStack - 14); i--)
 		schedCopy[i] = contextSched.stack[i];
+
+	cout << "Task contextSched started" << endl;
 }
 
 //TODO adicionar zman machzor e quantas vezes quer rodar
@@ -67,8 +70,14 @@ void Parallelism::runTheTasks()
 	context[totalTasks].status = READY;	//for task 'runTheTasks' (IDLE task)
 	context[totalTasks].priority = MAXINT;
 	context[totalTasks].currentPriority = MAXINT;
+	context[totalTasks].name = 'I';
+	context[totalTasks].currentCycles = 0;
+
+
 
 	currentTask = totalTasks;
+
+	cout << "Current Task is " << SMARTS.getCurrentName() << endl;
 
 	asm	cli;		// forbids interrupts (clear interrupts) while changing the interrupt vect
 		// saves the original BIOS userInt in our variable 'userIntAddress' to be restored at the end
@@ -246,7 +255,7 @@ void Parallelism::incrPriority(int taskNum )
 {
 	if (taskNum < totalTasks){
 		context[taskNum].currentPriority = context[taskNum].currentPriority - 1;
-		cout<<"\nParallelism::incrPriority";
+		cout<<"\nParallelism::incrPriority\n";
 	}
 }
 //*
@@ -262,7 +271,7 @@ int Parallelism::getCurrentPriority(int taskNum){
 void Parallelism::decreaseCycles(int taskNum){
 	if (taskNum < totalTasks){
 		context[taskNum].currentCycles = context[taskNum].currentCycles - 1;
-		cout<<"\nParallelism::decreaseCycles";
+		cout<<"\nParallelism::decreaseCycles\n";
 	}
 }
 //*
@@ -279,7 +288,7 @@ void Parallelism::setOriginalPriority(int taskNum )
 {
 	if (taskNum < totalTasks){
 		context[taskNum].currentPriority = context[taskNum].priority;
-		cout<<"\nParallelism::setOriginalPriority";
+		cout<<"\nParallelism::setOriginalPriority\n";
 	}
 }
 

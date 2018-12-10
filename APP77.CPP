@@ -8,14 +8,15 @@
 #include "smarts77.h"
 
 // user Functions
-void a( )
+void a()
 {
 	SMARTS.contextSwitchOff();
 	cout << "\n *************   A Start    *********************";
 	SMARTS.contextSwitchOn();
-	for (int j=0; j <500; j++)
+	for (int j = 0; j < 10; j++)
 	{
-		for (long i=0; i <600000; i++);
+		for (long i = 0; i < 12000; i++)
+			;
 		SMARTS.contextSwitchOff();
 		cout << "A";
 		SMARTS.contextSwitchOn();
@@ -25,14 +26,15 @@ void a( )
 	SMARTS.contextSwitchOn();
 }
 
-void b( )
+void b()
 {
 	SMARTS.contextSwitchOff();
 	cout << "\n *************   B Start    *********************";
 	SMARTS.contextSwitchOn();
-	for (int j=0; j <500; j++)
+	for (int j = 0; j < 10; j++)
 	{
-		for (long i=0; i < 600000; i++);
+		for (long i = 0; i < 12000; i++)
+			;
 		SMARTS.contextSwitchOff();
 		cout << "B";
 		SMARTS.contextSwitchOn();
@@ -42,14 +44,15 @@ void b( )
 	SMARTS.contextSwitchOn();
 }
 
-void c( )
+void c()
 {
 	SMARTS.contextSwitchOff();
 	cout << "\n *************   C Start    *********************";
 	SMARTS.contextSwitchOn();
-	for (int j=0; j <500; j++)
+	for (int j = 0; j < 10; j++)
 	{
-		for (long i=0; i < 600000; i++);
+		for (long i = 0; i < 12000; i++)
+			;
 		SMARTS.contextSwitchOff();
 		cout << "C";
 		SMARTS.contextSwitchOn();
@@ -59,16 +62,13 @@ void c( )
 	SMARTS.contextSwitchOn();
 }
 
-void main( )
+void main()
 {
 	clrscr();
 	// SMARTS.externalFunctions(timerInterruptHandler, scheduler, myTaskEnd, roundRobin);
 	SMARTS.externalFunctions(timerInterruptHandler, scheduler, myTaskEnd, EDF);
-	SMARTS.declareTask(a,'A', 5, 3);
-	SMARTS.declareTask(b,'B', 7, 4);
-	SMARTS.declareTask(c,'C', 10, 5);
+	SMARTS.declareTask(a, 'A', 5, 3);
+	SMARTS.declareTask(b, 'B', 7, 4);
+	SMARTS.declareTask(c, 'C', 10, 5);
 	SMARTS.runTheTasks();
 }
-
-
-
