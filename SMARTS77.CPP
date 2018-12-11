@@ -6,6 +6,7 @@
 /* SMARTS77.CPP, SMARTS class body                              */
 /****************************************************************/
 #include "smarts77.h"
+#include <stdlib.h>
 
 /**********    Function     **********/
 unsigned getTimerClocks()
@@ -31,6 +32,8 @@ Parallelism::Parallelism()
 	deadlock = false;
 	contextSwitchFlag = true;
 	endOfTimeSlice = true;
+	error = false;
+	allFinished = false;
 }
 
 void Parallelism::externalFunctions(void interrupt (*timerInterruptHandler)(...),
@@ -42,15 +45,12 @@ void Parallelism::externalFunctions(void interrupt (*timerInterruptHandler)(...)
 	this->scheduler = scheduler;
 	this->userTaskEnd = userTaskEnd;
 	this->algorithm = algorithm;
-	cout << "Starting Task contextSched" << endl;
+	
 	contextSched.declare(scheduler, userTaskEnd, 'S', 0, 0); // prepare the stack of the scheduler task
 	for (int i = MaxStack - 1; i >= (MaxStack - 14); i--)
 		schedCopy[i] = contextSched.stack[i];
-
-	cout << "Task contextSched started" << endl;
 }
 
-//TODO adicionar zman machzor e quantas vezes quer rodar
 int Parallelism::declareTask(void far *code, char name, int period, int cycles)
 // Insert a new task entry in SMARTS context array [ ]
 {
@@ -67,6 +67,7 @@ int Parallelism::declareTask(void far *code, char name, int period, int cycles)
 void Parallelism::runTheTasks()
 // Start running all tasks declared in SMARTS.
 {
+	// cprintf("\nrunTheTasks");
 	context[totalTasks].status = READY; //for task 'runTheTasks' (IDLE task)
 	context[totalTasks].priority = MAXINT;
 	context[totalTasks].currentPriority = MAXINT;
@@ -74,8 +75,6 @@ void Parallelism::runTheTasks()
 	context[totalTasks].currentCycles = 0;
 
 	currentTask = totalTasks;
-
-	cout << "Current Task is " << SMARTS.getCurrentName() << endl;
 
 	asm cli;							 // forbids interrupts (clear interrupts) while changing the interrupt vect
 										 // saves the original BIOS userInt in our variable 'userIntAddress' to be restored at the end
@@ -96,9 +95,15 @@ void Parallelism::runTheTasks()
 			cprintf("\n\n\rExit : deadlock");
 			break;
 		}
-		if (activeTasks == 0)
+		if (allFinished == 1 && activeTasks == 0)	// poderia ser so allFinished
 		{
 			cprintf("\n\n\rExit : finish");
+			break;
+		}
+		//! ainda nao sei aonde escrever o codigo de erro
+		if(error){
+			textcolor(RED);
+			cprintf("\n\n\rExit : ERROR");
 			break;
 		}
 	}
@@ -117,7 +122,6 @@ void Parallelism::callScheduler()
 	asm int timerInt;
 }
 
-//TODO restoreSchedTask()
 void Parallelism::restoreSchedStack()
 // Restore the scheduler stack
 {
@@ -241,6 +245,17 @@ void Parallelism::setCurrentNotActive()
 {
 	context[currentTask].status = NOT_ACTIVE;
 	--activeTasks;
+	//*
+	// Loop throw all tasks to see if everyone finished, because it
+	// may be that activeTasks is 0 but the tasks still need to run.
+	allFinished = true;
+	for (int count = 0; count < getTotalTasks(); count++){
+		if(getCycles(count) > 0){
+			allFinished = false;
+			break;
+		}
+	}
+	//*
 }
 void Parallelism::suspended()
 {
@@ -253,7 +268,6 @@ void Parallelism::incrPriority(int taskNum)
 	if (taskNum < totalTasks)
 	{
 		context[taskNum].currentPriority = context[taskNum].currentPriority - 1;
-		cout << "\nParallelism::incrPriority\n";
 	}
 }
 //*
@@ -273,7 +287,6 @@ void Parallelism::decreaseCycles(int taskNum)
 	if (taskNum < totalTasks)
 	{
 		context[taskNum].currentCycles = context[taskNum].currentCycles - 1;
-		cout << "\nParallelism::decreaseCycles\n";
 	}
 }
 //*
@@ -288,13 +301,37 @@ int Parallelism::getCycles(int taskNum)
 	}
 }
 //*
+//*
+// Sets the error flag to alert for errors handling tasks.
+void Parallelism::setError()
+{
+	error = true;
+	//! ainda nao sei aonde escrever o codigo de erro
+	textcolor(RED);
+	cprintf("\n\n\rExit : ERROR");
+	exit(1);
+}
+//*
+//*
+int Parallelism::getError()
+{
+	return error;
+}
+//*
+//*
+void Parallelism::reDeclare(int taskNum)
+{
+	if (taskNum < totalTasks)
+	{
+		context[taskNum].reDeclare();
+	}
+}
+//*
 void Parallelism::setOriginalPriority(int taskNum)
 {
 	if (taskNum < totalTasks)
 	{
-		context[taskNum].currentPriority = context[taskNum].priority;
-		cout << "\nParallelism::setOriginalPriority\n";
-	}
+		context[taskNum].currentPriority = context[taskNum].priority;	}
 }
 
 void Parallelism::setCurrentOriginalPriority()
@@ -356,7 +393,7 @@ void Parallelism::getSchedStack(unsigned &StackSeg, unsigned &StackPtr)
 	StackSeg = contextSched.stackSeg;
 	StackPtr = contextSched.stackPtr;
 }
-
+// Essa funcao seria o relogio que nos queremos usar
 void Parallelism::handleTimers()
 // handling of the sleep status mode
 {
@@ -369,23 +406,42 @@ void Parallelism::handleTimers()
 				--sleepTasks;
 		}
 	}
+	//*
+	
+	// We loop throw the Tasks to decrease their periods, and
+	// redeclare or set error when needed to.
+	for (int count = 0; count < getTotalTasks(); count++)
+	{
+		// cprintf("\nLooking at Task %c", getName(count));
+
+		if (getCycles(count) <= 0)
+		{
+			continue;	// skip the finished ones
+		}
+
+		incrPriority(count);	// decrease period
+
+		if (getCurrentPriority(count) <= 0)
+		{
+			if (getStatus(count) != NOT_ACTIVE)
+			{
+				cprintf("\n\n\rError handling periodic tasks!");
+				setError();
+			}
+			else{
+				reDeclare(count);
+			}
+		}
+		// cprintf("\nPeriod of Task %c is %i", getName(count), getCurrentPriority(count));
+	}
+	//*
 }
 
 void Parallelism::taskEnd()
 // This function is called after the last operation of a task, instead of function return
 {
-	//*
-	SMARTS.setCurrentNotActive();
-	SMARTS.decreaseCycles(SMARTS.getCurrentTask());
-	SMARTS.setCurrentOriginalPriority();
-	//*
-	// if(SMARTS.getCycles(SMARTS.getCurrentTask()) > 0){
-	// 	SMARTS.decreaseCycles(SMARTS.getCurrentTask());
-	// }
-	// else{
-	// 	SMARTS.setCurrentNotActive();
-	// }
-	SMARTS.callScheduler(); // return the control to the scheduler to run a next task
+	setCurrentNotActive();
+	callScheduler(); // return the control to the scheduler to run a next task
 }
 
 /**********    class body:  Task     **********/
@@ -407,7 +463,7 @@ Task::Task()
 	currentPriority = priority = 0;
 }
 //-----------------------------------------------------
-//TODO
+
 void Task::declare(void far *code, void far *userTaskEnd, char name, int period, int cycles)
 {
 	stack[MaxStack - 5] = FP_OFF(code);
@@ -420,6 +476,24 @@ void Task::declare(void far *code, void far *userTaskEnd, char name, int period,
 	this->currentPriority = period;
 	this->cycles = cycles;
 	this->currentCycles = cycles;
+	status = READY;
+	//*
+	// We save the Task's stack so we can re-run it more times.
+	for (int i = MaxStack - 1; i >= (MaxStack - 14); i--)
+		copyStack[i] = stack[i];
+	//*
+}
+// Redeclaring a Task gets back the original stack, decreases the cycles, resets
+// the priority(period) and turn it status to ready.
+void Task::reDeclare(){
+	for (int i = MaxStack - 1; i >= (MaxStack - 14); i--)
+		stack[i] = copyStack[i];
+	// essas duas linhas foram copiadas do construtor de acordo com o professor
+	stackSeg = FP_SEG(&stack[MaxStack - 14]);
+	stackPtr = FP_OFF(&stack[MaxStack - 14]);
+
+	currentCycles--;
+	currentPriority = priority;
 	status = READY;
 }
 //----------------------------------------------------

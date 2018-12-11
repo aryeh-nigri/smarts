@@ -47,8 +47,12 @@ private:
 class Task 
 {
 public:
+
 	char name;                      // task name
 	unsigned stack[MaxStack];       // the stack
+	//*
+	unsigned copyStack[MaxStack];       // the stack
+	//*
 	unsigned stackSeg, stackPtr;    // the stack pointer
 	int currentPriority;            // the priority of the task
 	int priority;                   // the original priority
@@ -65,6 +69,7 @@ public:
 	void incrPriority();
 	void setOriginalPriority();
 	//*
+	void reDeclare();
 	int getCurrentPriority();
 	void decreaseCycles();
 	int getCycles();
@@ -74,6 +79,8 @@ public:
 class Parallelism
 {
 private:
+	int error;
+	int allFinished;
 	Task context[MaxTask];  // all tasks entries
 	Task contextSched;      // scheduler entry
 	unsigned schedCopy[MaxStack];  // a copy of the scheduler stack
@@ -133,6 +140,9 @@ public:
 	int getCurrentPriority(int taskNum);
 	void decreaseCycles(int taskNum);
 	int getCycles(int taskNum);
+	void setError();
+	int getError();
+	void reDeclare(int taskNum);
 	//*
 	void setOriginalPriority(int taskNum );
 	void setCurrentOriginalPriority();

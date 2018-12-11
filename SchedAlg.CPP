@@ -23,19 +23,19 @@ int roundRobin()
 
 int EDF()
 {
-	int count, nextTask, currentPeriod;
-	int currentTask = SMARTS.getCurrentTask();
-	int minPeriod = SMARTS.getCurrentPriority(currentTask);
+	int nextTask = SMARTS.getTotalTasks();	// the IDLE task
+	int minPeriod = SMARTS.getCurrentPriority(nextTask);	// MAXINT is the IDLE's period
+	// int minPeriod = MAXINT;	
 
-	for (count = 0; count <= SMARTS.getTotalTasks(); count++)
+	for (int count = 0; count < SMARTS.getTotalTasks(); count++)
 	{
-		currentTask = (currentTask + 1) % SMARTS.getTotalTasks();
-		currentPeriod = SMARTS.getCurrentPriority(currentTask);
-
-		if (SMARTS.getStatus(currentTask) == READY && currentPeriod < minPeriod)
-		{
-			minPeriod = currentPeriod;
-			nextTask = currentTask;
+		if (SMARTS.getStatus(count) == READY){
+			int currentPeriod = SMARTS.getCurrentPriority(count);
+			
+			if (currentPeriod < minPeriod) {
+				minPeriod = currentPeriod;
+				nextTask = count;
+			}
 		}
 	}
 

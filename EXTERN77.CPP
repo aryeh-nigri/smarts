@@ -6,55 +6,29 @@
 /* EXTERN77.CPP, holds all external functions                    */
 /*****************************************************************/
 #include "smarts77.h"
-#include <stdlib.h>
 
 /**********    GLOBAL Variables    **********/
 Parallelism SMARTS;
 static unsigned StackSegAct, StackPtrAct;
 
-//TODO TEM QUE MUDAR ISSO AI
 /**********    EXTERNAL FUNCTION     **********/
 void far interrupt timerInterruptHandler(...)
 // This function is called 18.2 times per second ( every ~~ 55 millisec).
 {
-	cout << "Entering timerInterruptHandler" << endl;
 	asm mov StackPtrAct, sp; // get the stack addr of the task interrupted
 	asm mov ax, ss;			 // by the clock or by a Program interrupt
 	asm mov StackSegAct, ax;
 
 	SMARTS.timerClocksEnd = getTimerClocks();
 
-	//*
-	for (int count = 0; count < SMARTS.getTotalTasks(); count++)
-	{
-		cout << "Looking at Task " << SMARTS.getName(count) << endl;
-
-		if (SMARTS.getCycles(count) == 0)
-		{
-			continue;
-		}
-
-		SMARTS.incrPriority(count);
-
-		if (SMARTS.getCurrentPriority(count) == 0)
-		{
-			if (SMARTS.getStatus(count) == READY)
-			{
-				cout << "\nError handling periodic tasks!\n";
-				// exit(1);
-			}
-		}
-
-		cout << "Period of task " << SMARTS.getName(count) << " is " << SMARTS.getCurrentPriority(count) << endl;
-	}
-	//*
+	
 
 	// if it was called by the timer interrupt (hardware source),
 	// it calls the original BIOS routine. not to change the PC work.
 	if (!SMARTS.getProgInt())
 	{
 		asm int userInt;
-		SMARTS.handleTimers();
+		SMARTS.handleTimers();	// aqui que vamos usar o relogio
 	}
 	else
 		SMARTS.resetProgInt(); //else it is a software "prog interrupt". reset this flag
@@ -76,7 +50,7 @@ void far interrupt timerInterruptHandler(...)
 	//		SMARTS.setEndOfTimeSlice();
 	//		++SMARTS.TScount;	// increment Time Share count
 	//	}
-	cout << "Leaving timerInterruptHandler" << endl;
+	// cout << "Leaving timerInterruptHandler" << endl;
 }
 /**********    EXTERNAL FUNCTION     **********/
 void scheduler() // this also a parallel task
@@ -88,7 +62,7 @@ void scheduler() // this also a parallel task
 
 	// calling to the 'short term scheduler' algorithm
 	nextTask = SMARTS.algorithm();
-	cout << "Next Task TO BE is " << SMARTS.getName(nextTask) << endl;
+	// cprintf("Next Task TO BE is %c", SMARTS.getName(nextTask));
 
 	// checking for 'deadlock' : not found task to run and tasks remain suspended
 	if (nextTask == SMARTS.getTotalTasks() &&
@@ -102,16 +76,8 @@ void scheduler() // this also a parallel task
 			}
 	}
 
-	// //*
-	// if(nextTask == SMARTS.getCurrentTask()){
-	// 	//! TAKALA
-	// 	cout << "\nError on the periodic tasks!\n";
-	// 	exit(-1);
-	// }
-	// //*
 	// ok to run a next task
 	SMARTS.setCurrentTask(nextTask);
-	cout << "Next Task is " << SMARTS.getCurrentName() << endl;
 
 	//  'dispatcher' to restore the next task stack addr and registers
 	SMARTS.getCurrentStack(StackSegAct, StackPtrAct);
