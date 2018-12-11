@@ -27,7 +27,7 @@ int EDF()
 	int currentTask = SMARTS.getCurrentTask();
 	int minPeriod = SMARTS.getCurrentPriority(currentTask);
 
-	for (count = 0; count < SMARTS.getTotalTasks(); count++)
+	for (count = 0; count <= SMARTS.getTotalTasks(); count++)
 	{
 		currentTask = (currentTask + 1) % SMARTS.getTotalTasks();
 		currentPeriod = SMARTS.getCurrentPriority(currentTask);
