@@ -11,54 +11,60 @@
 void a()
 {
 	SMARTS.contextSwitchOff();
-	cout << "\n *************   A Start    *********************";
+	fprintf(myOutput, "\n *************   A Start    *********************\n");
+	// cout << "\n *************   A Start    *********************\n";
 	SMARTS.contextSwitchOn();
-	for (int j = 0; j < 50; j++)
+	for (int j = 0; j < 10; j++)
 	{
-		for (long i = 0; i < 600000; i++)	// loop vazio pra passar tempo; +- 200.000 eh um relogio
-			;
+		for (long i = 0; i < 600000; i++);//600.000 3 time clock
 		SMARTS.contextSwitchOff();
-		cout << "A"<<j;
+		fprintf(myOutput, "A");
+		// cout << "A";//<<j;
 		SMARTS.contextSwitchOn();
 	}
 	SMARTS.contextSwitchOff();
-	cout << "\n *************   A Finish   *********************";
+	fprintf(myOutput, "\n *************   A Finish   *********************\n");
+	// cout << "\n *************   A Finish   *********************\n";
 	SMARTS.contextSwitchOn();
 }
 
 void b()
 {
 	SMARTS.contextSwitchOff();
-	cout << "\n *************   B Start    *********************";
+	fprintf(myOutput, "\n *************   B Start    *********************\n");
+	// cout << "\n *************   B Start    *********************\n";
 	SMARTS.contextSwitchOn();
 	for (int j = 0; j < 10; j++)
 	{
-		for (long i = 0; i < 200000; i++)
-			;
+		for (long i = 0; i < 600000; i++);
 		SMARTS.contextSwitchOff();
-		cout << "B";
+		fprintf(myOutput, "B");
+		// cout << "B";
 		SMARTS.contextSwitchOn();
 	}
 	SMARTS.contextSwitchOff();
-	cout << "\n *************   B Finish   *********************";
+	fprintf(myOutput, "\n *************   B Finish   *********************\n");
+	// cout << "\n *************   B Finish   *********************\n";
 	SMARTS.contextSwitchOn();
 }
 
 void c()
 {
 	SMARTS.contextSwitchOff();
-	cout << "\n *************   C Start    *********************";
+	fprintf(myOutput, "\n *************   C Start    *********************\n");
+	// cout << "\n *************   C Start    *********************\n";
 	SMARTS.contextSwitchOn();
-	for (int j = 0; j < 15; j++)
+	for (int j = 0; j < 10; j++)
 	{
-		for (long i = 0; i < 200000; i++)
-			;
+		for (long i = 0; i < 600000; i++);
 		SMARTS.contextSwitchOff();
-		cout << "C";
+		fprintf(myOutput, "C");
+		// cout << "C";
 		SMARTS.contextSwitchOn();
 	}
 	SMARTS.contextSwitchOff();
-	cout << "\n *************   C Finish   *********************";
+	fprintf(myOutput, "\n *************   C Finish   *********************\n");
+	// cout << "\n *************   C Finish   *********************\n";
 	SMARTS.contextSwitchOn();
 }
 
@@ -66,9 +72,53 @@ void main()
 {
 	clrscr();
 	// SMARTS.externalFunctions(timerInterruptHandler, scheduler, myTaskEnd, roundRobin);
-	SMARTS.externalFunctions(timerInterruptHandler, scheduler, myTaskEnd, EDF);
-	SMARTS.declareTask(a, 'A', 50, 3);
-	SMARTS.declareTask(b, 'B', 70, 4);
-	SMARTS.declareTask(c, 'C', 100, 5);
+	// SMARTS.externalFunctions(timerInterruptHandler, scheduler, myTaskEnd, EDF);
+	SMARTS.externalFunctions(timerInterruptHandler, scheduler, myTaskEnd, RMS);
+	// SMARTS.declareTask(a, 'A', 30, 1);
+	// SMARTS.declareTask(b, 'B', 70, 1);
+	// SMARTS.declareTask(c, 'C', 100, 1);
+	SMARTS.declareTask(a, 'A', 30, 5);
+	SMARTS.declareTask(b, 'B', 70, 3);
+	SMARTS.declareTask(c, 'C', 100, 2);
 	SMARTS.runTheTasks();
 }
+
+/*
+
+1) Work only with EDF:
+	SMARTS.declareTask(a, 'A', 50, 2);
+	SMARTS.declareTask(b, 'B', 70, 3);
+	SMARTS.declareTask(c, 'C', 100, 4);
+
+OUTPUT RR:
+*************   B Start    *********************
+
+*************   C Start    *********************
+
+*************   A Start    *********************
+CABCABCABCABCABCABCAB
+
+
+2) Work with RR and EDF:
+	SMARTS.declareTask(a, 'A', 80, 3);
+	SMARTS.declareTask(b, 'B', 120, 3);
+	SMARTS.declareTask(c, 'C', 180, 3);
+
+3) Dont work with RR and EDF:
+	SMARTS.declareTask(a, 'A', 30, 5);
+	SMARTS.declareTask(b, 'B', 70, 3);
+	SMARTS.declareTask(c, 'C', 100, 2);
+
+OUTPUT RR:
+*************   B Start    *********************
+
+*************   C Start    *********************
+
+*************   A Start    *********************
+CABCABCABCAB
+
+OUTPUT EDF:
+*************   A Start    *********************
+AAAA
+
+*/

@@ -21,19 +21,48 @@ int roundRobin()
 	return nextTask;
 }
 
+
 int EDF()
 {
 	int nextTask = SMARTS.getTotalTasks();	// the IDLE task
 	int minPeriod = SMARTS.getCurrentPriority(nextTask);	// MAXINT is the IDLE's period
-	// int minPeriod = MAXINT;	
+	// int minPeriod = MAXINT;
+	int currentPeriod;	
 
 	for (int count = 0; count < SMARTS.getTotalTasks(); count++)
 	{
-		if (SMARTS.getStatus(count) == READY){
-			int currentPeriod = SMARTS.getCurrentPriority(count);
+		if (SMARTS.getStatus(count) == READY)
+		{
+			currentPeriod = SMARTS.getCurrentPriority(count);
 			
-			if (currentPeriod < minPeriod) {
+			if (currentPeriod < minPeriod) 
+			{
 				minPeriod = currentPeriod;
+				nextTask = count;
+			}
+		}
+	}
+
+	return nextTask;
+}
+
+
+int RMS()
+{
+	int nextTask = SMARTS.getTotalTasks();	// the IDLE task
+	int minPeriod = SMARTS.getPriority(nextTask);	// MAXINT is the IDLE's period
+	// int minPeriod = MAXINT;	
+	int period;
+
+	for (int count = 0; count < SMARTS.getTotalTasks(); count++)
+	{
+		if (SMARTS.getStatus(count) == READY)
+		{
+			period = SMARTS.getPriority(count);
+			
+			if (period < minPeriod) 
+			{
+				minPeriod = period;
 				nextTask = count;
 			}
 		}

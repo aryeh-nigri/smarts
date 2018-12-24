@@ -43,6 +43,7 @@ private:
 	void reset();
 };
 
+
 // SMARTS manages an entry of this type for each task
 class Task 
 {
@@ -138,6 +139,7 @@ public:
 	void incrPriority(int taskNum);
 	//*
 	int getCurrentPriority(int taskNum);
+	int getPriority(int taskNum);
 	void decreaseCycles(int taskNum);
 	int getCycles(int taskNum);
 	void setError();
@@ -169,8 +171,12 @@ void myTaskEnd();
 int roundRobin();
 // EDF algorithm
 int EDF();
+// RMS algorithm
+int RMS();
+
+// File to output results
+extern FILE* myOutput;
+
 //
 	// main scheduler object
 extern Parallelism SMARTS;
-
-

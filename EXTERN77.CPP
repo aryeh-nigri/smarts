@@ -61,8 +61,12 @@ void scheduler() // this also a parallel task
 	int nextTask, i;
 
 	// calling to the 'short term scheduler' algorithm
-	nextTask = SMARTS.algorithm();
-	// cprintf("Next Task TO BE is %c", SMARTS.getName(nextTask));
+	if(SMARTS.getError() == true){
+		nextTask = SMARTS.getTotalTasks();
+	}
+	else{
+		nextTask = SMARTS.algorithm();
+	}
 
 	// checking for 'deadlock' : not found task to run and tasks remain suspended
 	if (nextTask == SMARTS.getTotalTasks() &&
@@ -71,7 +75,7 @@ void scheduler() // this also a parallel task
 		for (i = SMARTS.getTotalTasks() - 1; i >= 0; --i)
 			if (SMARTS.getStatus(i) == SUSPENDED)
 			{
-				cprintf("\ntask %c  is suspended", SMARTS.getName(i));
+				fprintf(myOutput, "\ntask %c  is suspended", SMARTS.getName(i));
 				SMARTS.setDeadlock();
 			}
 	}

@@ -46,7 +46,7 @@ void Parallelism::externalFunctions(void interrupt (*timerInterruptHandler)(...)
 	this->userTaskEnd = userTaskEnd;
 	this->algorithm = algorithm;
 	
-	contextSched.declare(scheduler, userTaskEnd, 'S', 0, 0); // prepare the stack of the scheduler task
+	contextSched.declare(scheduler, userTaskEnd, 'S', 0, 1); // prepare the stack of the scheduler task
 	for (int i = MaxStack - 1; i >= (MaxStack - 14); i--)
 		schedCopy[i] = contextSched.stack[i];
 }
@@ -67,7 +67,6 @@ int Parallelism::declareTask(void far *code, char name, int period, int cycles)
 void Parallelism::runTheTasks()
 // Start running all tasks declared in SMARTS.
 {
-	// cprintf("\nrunTheTasks");
 	context[totalTasks].status = READY; //for task 'runTheTasks' (IDLE task)
 	context[totalTasks].priority = MAXINT;
 	context[totalTasks].currentPriority = MAXINT;
@@ -93,17 +92,20 @@ void Parallelism::runTheTasks()
 		{
 			textcolor(RED);
 			cprintf("\n\n\rExit : deadlock");
+			fprintf(myOutput, "\n\n\rExit : deadlock");
 			break;
 		}
-		if (allFinished == 1 && activeTasks == 0)	// poderia ser so allFinished
-		{
-			cprintf("\n\n\rExit : finish");
-			break;
-		}
-		//! ainda nao sei aonde escrever o codigo de erro
-		if(error){
+		if(error == true){
 			textcolor(RED);
 			cprintf("\n\n\rExit : ERROR");
+			fprintf(myOutput, "\n\n\rExit : ERROR");
+			break;
+		}
+		if (allFinished == true)// && activeTasks == 0)	// PRECISA ser so allFinished
+		{
+			textcolor(BLUE);
+			cprintf("\n\n\rExit : finish");
+			fprintf(myOutput, "\n\n\rExit : finish");
 			break;
 		}
 	}
@@ -282,6 +284,17 @@ int Parallelism::getCurrentPriority(int taskNum)
 }
 //*
 //*
+int Parallelism::getPriority(int taskNum)
+{
+	if (taskNum < totalTasks)
+		return context[taskNum].priority;
+	else
+	{
+		return MAXINT;
+	}
+}
+//*
+//*
 void Parallelism::decreaseCycles(int taskNum)
 {
 	if (taskNum < totalTasks)
@@ -306,10 +319,6 @@ int Parallelism::getCycles(int taskNum)
 void Parallelism::setError()
 {
 	error = true;
-	//! ainda nao sei aonde escrever o codigo de erro
-	textcolor(RED);
-	cprintf("\n\n\rExit : ERROR");
-	exit(1);
 }
 //*
 //*
@@ -393,6 +402,7 @@ void Parallelism::getSchedStack(unsigned &StackSeg, unsigned &StackPtr)
 	StackSeg = contextSched.stackSeg;
 	StackPtr = contextSched.stackPtr;
 }
+
 // Essa funcao seria o relogio que nos queremos usar
 void Parallelism::handleTimers()
 // handling of the sleep status mode
@@ -412,27 +422,32 @@ void Parallelism::handleTimers()
 	// redeclare or set error when needed to.
 	for (int count = 0; count < getTotalTasks(); count++)
 	{
-		// cprintf("\nLooking at Task %c", getName(count));
 
-		if (getCycles(count) <= 0)
+		// if (getCycles(count) <= 0)
+		// {
+		// 	continue;	// skip the finished ones
+		// }
+
+		if(getCycles(count) > 0)
 		{
-			continue;	// skip the finished ones
-		}
 
-		incrPriority(count);	// decrease period
-
-		if (getCurrentPriority(count) <= 0)
-		{
-			if (getStatus(count) != NOT_ACTIVE)
+			if (getCurrentPriority(count) <= 0)
 			{
-				cprintf("\n\n\rError handling periodic tasks!");
-				setError();
+				if (getStatus(count) != NOT_ACTIVE)
+				{
+					fprintf(myOutput, "\n\n\rError handling periodic tasks!");
+					setError();
+				}
+				else{
+					reDeclare(count);
+				}
 			}
-			else{
-				reDeclare(count);
-			}
+
+			incrPriority(count);	// decrease period
+
 		}
-		// cprintf("\nPeriod of Task %c is %i", getName(count), getCurrentPriority(count));
+
+
 	}
 	//*
 }
@@ -461,6 +476,7 @@ Task::Task()
 	status = NOT_ACTIVE;
 	sleepCount = 0;
 	currentPriority = priority = 0;
+	currentCycles = cycles = 0;
 }
 //-----------------------------------------------------
 
@@ -468,7 +484,7 @@ void Task::declare(void far *code, void far *userTaskEnd, char name, int period,
 {
 	stack[MaxStack - 5] = FP_OFF(code);
 	stack[MaxStack - 4] = FP_SEG(code);
-	stack[MaxStack - 3] = _FLAGS;
+	stack[MaxStack - 3] = _FLAGS;cycles--;
 	stack[MaxStack - 2] = FP_OFF(userTaskEnd);
 	stack[MaxStack - 1] = FP_SEG(userTaskEnd);
 	this->name = name;
@@ -543,3 +559,5 @@ void Task::sleepDecr()
 			status = READY;
 	}
 }
+
+FILE* myOutput = fopen("output.txt", "w");
