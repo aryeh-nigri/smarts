@@ -67,6 +67,7 @@ public:
 	taskStatus status;              // the status of the task
 	Event *expectedEvent;           // the event that this task is waiting for
 	int sleepCount;                 // the sleep remainder time
+	int contextSwitchFlag;          // enables/disables context switch
 	Task();
 	void declare(void far *code, void far *taskEnd, char name, int period, int cycles);
 	void sleepDecr();
@@ -77,6 +78,9 @@ public:
 	int getCurrentPriority();
 	void decreaseCycles();
 	int getCycles();
+	int getContextSwitch();
+	void setContextSwitchOff();
+	void setContextSwitchOn();
 	//*
 };
 //                           Main class
@@ -92,7 +96,7 @@ private:
 	int currentTask;        // time slice holding task
 	int deadlock;           // deadlock flag
 	int progInt;            // 'program interrupt' flag
-	int contextSwitchFlag;  // enables/disables context switch
+//	int contextSwitchFlag;  // enables/disables context switch
 	int endOfTimeSlice;     // indicates that has to be a context switch as soon as possible
 		// a pointer to the new timer interrupt handler
 	void interrupt ( *timerInterruptHandler)(...);

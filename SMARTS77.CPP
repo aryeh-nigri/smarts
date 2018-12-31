@@ -165,23 +165,27 @@ int Parallelism::contextSwitchOn()
 	if (endOfTimeSlice) //is current time slice finished ?
 	{
 		endOfTimeSlice = false;
-		contextSwitchFlag = true;
+		getCurrentTask().setContextSwitchOn();
+	 // contextSwitchFlag = true;
 		callScheduler(); // return control to the scheduler
 		return 1;
 	}
-	contextSwitchFlag = true;
+	getCurrentTask().setContextSwitchOn();
+	//contextSwitchFlag = true;
 	return 0;
 }
 
 void Parallelism::contextSwitchOff()
 // Disable context switch
 {
-	contextSwitchFlag = false;
+	getCurrentTask().setContextSwitchOff();
+	//contextSwitchFlag = false;
 }
 
 int Parallelism::getContextSwitch()
 {
-	return contextSwitchFlag;
+	return getCurrentTask().getContextSwitch();
+	//return contextSwitchFlag;
 }
 
 void Parallelism::setProgInt()
@@ -501,6 +505,7 @@ void Task::declare(void far *code, void far *userTaskEnd, char name, int period,
 	this->cycles = cycles;
 	this->currentCycles = cycles;
 	status = READY;
+	contextSwitchFlag = 1;
 	//*
 	// We save the Task's stack so we can re-run it more times.
 	for (int i = MaxStack - 1; i >= (MaxStack - 14); i--)
@@ -519,6 +524,17 @@ void Task::reDeclare(){
 	currentCycles--;
 	currentPriority = priority;
 	status = READY;
+}
+int Task::getContextSwitch()
+{
+	return contextSwitchFlag;
+}
+
+void Task::setContextSwitchOff(){
+	contextSwitchFlag = 0;
+}
+void Task::setContextSwitchOn(){
+	contextSwitchFlag = 1;
 }
 //----------------------------------------------------
 // void Task::incrPriority( )

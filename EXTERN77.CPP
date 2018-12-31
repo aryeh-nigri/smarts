@@ -33,6 +33,27 @@ void far interrupt timerInterruptHandler(...)
 	else
 		SMARTS.resetProgInt(); //else it is a software "prog interrupt". reset this flag
 
+    
+	if(!SMARTS.getProgInt()){ //if it was called by the timer interrupt, we have to verify the flag of the current task,
+	     				      
+		if(SMARTS.getCurrentTask().getContextSwitch()){ //if we can make context switch, so we store the variables of the current task and call the scheduller
+			SMARTS.setCurrentStack(StackSegAct, StackPtrAct);
+			SMARTS.restoreSchedStack(); // prepare activation of the task "scheduler"
+			SMARTS.getSchedStack(StackSegAct, StackPtrAct);
+			asm mov ax, StackSegAct;
+			asm mov ss, ax;
+			asm mov sp, StackPtrAct;	
+		}
+	}
+	else{ //if it is a software prog interrupt, we store the variables of the current task and call the scheduller
+		SMARTS.setCurrentStack(StackSegAct, StackPtrAct);
+		SMARTS.restoreSchedStack(); // prepare activation of the task "scheduler"
+		SMARTS.getSchedStack(StackSegAct, StackPtrAct);
+		asm mov ax, StackSegAct;
+		asm mov ss, ax;
+		asm mov sp, StackPtrAct;
+	}
+	/*
 	// if the 'context switch' flag=true, save the current task variables
 	// and call the 'scheduler'
 	if (SMARTS.getContextSwitch()) // save stack addr of interrupted task in current stack
@@ -44,6 +65,7 @@ void far interrupt timerInterruptHandler(...)
 		asm mov ss, ax;
 		asm mov sp, StackPtrAct;
 	}
+	*/
 	// else if 'context switch' flag=false set 'end of time slice' flag
 	//	else
 	//	{
