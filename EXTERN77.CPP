@@ -5,10 +5,10 @@
 /* update Tishrey  5777                                          */
 /* EXTERN77.CPP, holds all external functions                    */
 /*****************************************************************/
-#include "smarts77.h"
+#include "SMARTS77.H"
 
 /**********    GLOBAL Variables    **********/
-Parallelism SMARTS;
+// Parallelism SMARTS;
 static unsigned StackSegAct, StackPtrAct;
 
 /**********    EXTERNAL FUNCTION     **********/

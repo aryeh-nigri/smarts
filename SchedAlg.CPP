@@ -5,7 +5,7 @@
 /* SchedAlgo64.CPP, short-term scheduler algorithms                */
 /****************************************************************/
 
-#include "smarts77.h"
+#include "SMARTS77.H"
 
 int roundRobin()
 // Round Robin short-term algorithm

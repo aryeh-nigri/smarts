@@ -5,7 +5,7 @@
 /* update Tishrey  5777     	                              */
 /* EVENT77.CPP, events handling	                              */
 /**************************************************************/
-#include "smarts77.h"
+#include "SMARTS77.H"
 
 Event::Event()
 {
@@ -15,23 +15,23 @@ Event::Event()
 void Event::send(char name, void *param, int synch)
 {
 	int i;
-	while(testAndSet( ))
-		SMARTS.callScheduler( );
+	while (testAndSet())
+		SMARTS.callScheduler();
 
-	source = SMARTS.getCurrentName( );
+	source = SMARTS.getCurrentName();
 	data = param;
 
-	for (i=SMARTS.getTotalTasks()-1; i>=0; --i)
+	for (i = SMARTS.getTotalTasks() - 1; i >= 0; --i)
 		if (SMARTS.getName(i) == name)
 			break;
 
-	if (i>=0) 
+	if (i >= 0)
 	{
-		if (SMARTS.getStatus(i)==SUSPENDED && SMARTS.getExpectedEvent(i)==this)
+		if (SMARTS.getStatus(i) == SUSPENDED && SMARTS.getExpectedEvent(i) == this)
 			SMARTS.resume(i);
-		if (synch) 
+		if (synch)
 		{
-			senderWait = SMARTS.getCurrentTask( );
+			senderWait = SMARTS.getCurrentTask();
 			dest = name;
 			SMARTS.suspended();
 		}
@@ -43,7 +43,7 @@ void Event::send(char name, void *param, int synch)
 void *Event::wait(char &sourceP)
 {
 	void *param;
-	if (!flag || dest!=SMARTS.getCurrentName()) 
+	if (!flag || dest != SMARTS.getCurrentName())
 	{
 		SMARTS.setCurrentExpectedEvent(this);
 		SMARTS.suspended();
@@ -66,7 +66,7 @@ int Event::arrived(char &sourceP)
 
 void Event::reset()
 {
-	flag=false;
+	flag = false;
 	data = NULL;
 	source = dest = ' ';
 	senderWait = -1;
@@ -75,11 +75,9 @@ void Event::reset()
 int Event::testAndSet()
 {
 	int tmp;
-	SMARTS.contextSwitchOff( );
+	SMARTS.contextSwitchOff();
 	tmp = flag;
 	flag = true;
-	SMARTS.contextSwitchOn( );
+	SMARTS.contextSwitchOn();
 	return tmp;
 }
-
-

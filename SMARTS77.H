@@ -6,6 +6,9 @@
 /* SMARTS77.H, main header file                                     */
 /********************************************************************/
 
+#ifndef SMARTS77
+#define SMARTS77
+
 #include <conio.h>
 #include <stdio.h>
 #include <dos.h>
@@ -29,7 +32,7 @@ private:
 	void *data;      // the parameter
 	char source;     // source task name
 	char dest;       // destination task name
-	int senderWait;  // tells if the sender has to wait till the reciver receives
+	int senderWait;  // tells if the sender has to wait till the receiver receives
 	int testAndSet();// test and set 'flag' in an 'atomic transaction'
  public:
 	Event();
@@ -98,6 +101,7 @@ private:
 	void far *scheduler;    // a pointer to the scheduler
 	void far *userTaskEnd;      // a pointer to the function called at the end of each task
 public:
+	int numberSuspended;
 	int sleepTasks;         // indicates how many task is sleeping, and it can't be deadlock
 	int activeTasks;        // indicates how many task is activate 
 	int traceInd;           // debugging index
@@ -138,6 +142,7 @@ public:
 	void suspended();
 	void incrPriority(int taskNum);
 	//*
+	void suspend(int taskNum);
 	int getCurrentPriority(int taskNum);
 	int getPriority(int taskNum);
 	void decreaseCycles(int taskNum);
@@ -180,3 +185,5 @@ extern FILE* myOutput;
 //
 	// main scheduler object
 extern Parallelism SMARTS;
+
+#endif // SMARTS77.H

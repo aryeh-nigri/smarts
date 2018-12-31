@@ -5,7 +5,7 @@
 /* update  Tishrey   5777                                       */
 /* SMARTS77.CPP, SMARTS class body                              */
 /****************************************************************/
-#include "smarts77.h"
+#include "SMARTS77.H"
 #include <stdlib.h>
 
 /**********    Function     **********/
@@ -250,11 +250,16 @@ void Parallelism::setCurrentNotActive()
 	//*
 	// Loop throw all tasks to see if everyone finished, because it
 	// may be that activeTasks is 0 but the tasks still need to run.
-	allFinished = true;
-	for (int count = 0; count < getTotalTasks(); count++){
-		if(getCycles(count) > 0){
-			allFinished = false;
-			break;
+	if (activeTasks == 0)
+	{
+		allFinished = true;
+		for (int count = 0; count < getTotalTasks(); count++)
+		{
+			if (getCycles(count) > 0)
+			{
+				allFinished = false;
+				break;
+			}
 		}
 	}
 	//*
@@ -272,6 +277,14 @@ void Parallelism::incrPriority(int taskNum)
 		context[taskNum].currentPriority = context[taskNum].currentPriority - 1;
 	}
 }
+//*
+void Parallelism::suspend(int taskNum){
+	if (taskNum < totalTasks){
+		context[taskNum].status = SUSPENDED;
+		callScheduler();
+	}
+}
+//*
 //*
 int Parallelism::getCurrentPriority(int taskNum)
 {
@@ -430,7 +443,6 @@ void Parallelism::handleTimers()
 
 		if(getCycles(count) > 0)
 		{
-
 			if (getCurrentPriority(count) <= 0)
 			{
 				if (getStatus(count) != NOT_ACTIVE)
@@ -442,12 +454,8 @@ void Parallelism::handleTimers()
 					reDeclare(count);
 				}
 			}
-
 			incrPriority(count);	// decrease period
-
 		}
-
-
 	}
 	//*
 }
