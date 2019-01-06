@@ -35,8 +35,9 @@ void far interrupt timerInterruptHandler(...)
 
     
 	if(!SMARTS.getProgInt()){ //if it was called by the timer interrupt, we have to verify the flag of the current task,
-	     				      
-		if(SMARTS.getCurrentTask().getContextSwitch()){ //if we can make context switch, so we store the variables of the current task and call the scheduller
+	    
+		//if we can make context switch, so we store the variables of the current task and call the scheduller			      
+		if(SMARTS.getCurrentTask().getContextSwitch()){ 
 			SMARTS.setCurrentStack(StackSegAct, StackPtrAct);
 			SMARTS.restoreSchedStack(); // prepare activation of the task "scheduler"
 			SMARTS.getSchedStack(StackSegAct, StackPtrAct);
@@ -44,6 +45,7 @@ void far interrupt timerInterruptHandler(...)
 			asm mov ss, ax;
 			asm mov sp, StackPtrAct;	
 		}
+		//else we only get back to the current task
 	}
 	else{ //if it is a software prog interrupt, we store the variables of the current task and call the scheduller
 		SMARTS.setCurrentStack(StackSegAct, StackPtrAct);
