@@ -37,7 +37,7 @@ void far interrupt timerInterruptHandler(...)
 	if(!SMARTS.getProgInt()){ //if it was called by the timer interrupt, we have to verify the flag of the current task,
 	    
 		//if we can make context switch, so we store the variables of the current task and call the scheduller			      
-		if(SMARTS.getCurrentTask().getContextSwitch()){ 
+		if(SMARTS.getContextTask(SMARTS.getCurrentTask()).getContextSwitch()){ 
 			SMARTS.setCurrentStack(StackSegAct, StackPtrAct);
 			SMARTS.restoreSchedStack(); // prepare activation of the task "scheduler"
 			SMARTS.getSchedStack(StackSegAct, StackPtrAct);

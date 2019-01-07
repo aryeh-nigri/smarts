@@ -30,7 +30,7 @@ Parallelism::Parallelism()
 	activeTasks = 0;
 	totalTasks = 0;
 	deadlock = false;
-	contextSwitchFlag = true;
+	//contextSwitchFlag = true;
 	endOfTimeSlice = true;
 	error = false;
 	allFinished = false;
@@ -165,12 +165,12 @@ int Parallelism::contextSwitchOn()
 	if (endOfTimeSlice) //is current time slice finished ?
 	{
 		endOfTimeSlice = false;
-		getCurrentTask().setContextSwitchOn();
+		context[currentTask].setContextSwitchOn();
 	 // contextSwitchFlag = true;
 		callScheduler(); // return control to the scheduler
 		return 1;
 	}
-	getCurrentTask().setContextSwitchOn();
+	context[currentTask].setContextSwitchOn();
 	//contextSwitchFlag = true;
 	return 0;
 }
@@ -178,16 +178,20 @@ int Parallelism::contextSwitchOn()
 void Parallelism::contextSwitchOff()
 // Disable context switch
 {
-	getCurrentTask().setContextSwitchOff();
+	context[currentTask].setContextSwitchOff();
 	//contextSwitchFlag = false;
 }
 
 int Parallelism::getContextSwitch()
 {
-	return getCurrentTask().getContextSwitch();
+	return context[currentTask].getContextSwitch();
 	//return contextSwitchFlag;
 }
 
+Task Parallelism::getContextTask(int currentTask)
+{
+	return context[currentTask];
+}
 void Parallelism::setProgInt()
 // flag indicates to the extern function 'timerInterruptHandler'
 // that this is an internal SMARTS software interrupt call,

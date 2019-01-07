@@ -14,69 +14,87 @@ Event AB, AC;
 // user Functions
 void a()
 {
-	SMARTS.contextSwitchOff();
-	fprintf(myOutput, "\n *************   A Start    *********************\n");
-	SMARTS.contextSwitchOn();
+	//SMARTS.contextSwitchOff();
 	m.acquire();
-	AC.send('C', NULL, 0);
-	AB.send('B', NULL, 0);
+	fprintf(myOutput, "\n *************   A Start    *********************\n");
+	m.release();
+	//SMARTS.contextSwitchOn();
+	m.acquire();
+	//AC.send('C', NULL, 0);
+	//AB.send('B', NULL, 0);
 	for (int j = 0; j < 10; j++)
 	{
 		for (long i = 0; i < 600000; i++);//600.000 3 time clock
-		SMARTS.contextSwitchOff();
+		//SMARTS.contextSwitchOff();
+		m.acquire();
 		fprintf(myOutput, "A");
 		// cout << "A";//<<j;
-		SMARTS.contextSwitchOn();
+		m.release();
+		//SMARTS.contextSwitchOn();
 	}
 	m.release();
-	SMARTS.contextSwitchOff();
+	//SMARTS.contextSwitchOff();
+	m.acquire();
 	fprintf(myOutput, "\n *************   A Finish   *********************\n");
 	// cout << "\n *************   A Finish   *********************\n";
-	SMARTS.contextSwitchOn();
+	//SMARTS.contextSwitchOn();
+	m.release();
 }
 
 void b()
 {
-	SMARTS.contextSwitchOff();
+	//SMARTS.contextSwitchOff();
+	m.acquire();
 	fprintf(myOutput, "\n *************   B Start    *********************\n");
 	// cout << "\n *************   B Start    *********************\n";
-	SMARTS.contextSwitchOn();
-	AB.wait('A');
+	//SMARTS.contextSwitchOn();
+	m.release();
+	//AB.wait('A');
 	for (int j = 0; j < 10; j++)
 	{
 		for (long i = 0; i < 600000; i++);
-		SMARTS.contextSwitchOff();
+		//SMARTS.contextSwitchOff();
+		m.acquire();
 		fprintf(myOutput, "B");
 		// cout << "B";
-		SMARTS.contextSwitchOn();
+		m.release();
+		//SMARTS.contextSwitchOn();
 	}
-	SMARTS.contextSwitchOff();
+	//SMARTS.contextSwitchOff();
+	m.acquire();
 	fprintf(myOutput, "\n *************   B Finish   *********************\n");
 	// cout << "\n *************   B Finish   *********************\n";
-	SMARTS.contextSwitchOn();
+	m.release();
+	//SMARTS.contextSwitchOn();
 }
 
 void c()
 {
-	SMARTS.contextSwitchOff();
+	//SMARTS.contextSwitchOff();
+	m.acquire();
 	fprintf(myOutput, "\n *************   C Start    *********************\n");
 	// cout << "\n *************   C Start    *********************\n";
-	SMARTS.contextSwitchOn();
-	AC.wait('A');
+	m.release();
+	//SMARTS.contextSwitchOn();
+	//AC.wait('A');
 	m.acquire();
 	for (int j = 0; j < 10; j++)
 	{
 		for (long i = 0; i < 600000; i++);
-		SMARTS.contextSwitchOff();
+		//SMARTS.contextSwitchOff();
+		m.acquire();
 		fprintf(myOutput, "C");
 		// cout << "C";
-		SMARTS.contextSwitchOn();
+		m.release();
+		//SMARTS.contextSwitchOn();
 	}
 	m.release();
-	SMARTS.contextSwitchOff();
+	//SMARTS.contextSwitchOff();
+	m.acquire();
 	fprintf(myOutput, "\n *************   C Finish   *********************\n");
 	// cout << "\n *************   C Finish   *********************\n";
-	SMARTS.contextSwitchOn();
+	m.release();
+	//SMARTS.contextSwitchOn();
 }
 
 void main()

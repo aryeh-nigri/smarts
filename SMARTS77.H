@@ -145,6 +145,7 @@ public:
 	void setCurrentNotActive();
 	void suspended();
 	void incrPriority(int taskNum);
+	Task getContextTask(int currentTask);
 	//*
 	void suspend(int taskNum);
 	int getCurrentPriority(int taskNum);
