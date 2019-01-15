@@ -63,6 +63,7 @@ public:
 	//*
 	int cycles;                     // the original cycles
 	int currentCycles;              // the remaining cycles of the task
+	int contextSwitchFlag;			// enables/disables context switch
 	//*
 	taskStatus status;              // the status of the task
 	Event *expectedEvent;           // the event that this task is waiting for
@@ -77,6 +78,10 @@ public:
 	int getCurrentPriority();
 	void decreaseCycles();
 	int getCycles();
+	int getContextSwitch();
+	void setContextSwitchOff();
+	void setContextSwitchOn();
+	void setPriority(int priority);
 	//*
 };
 //                           Main class
@@ -92,7 +97,7 @@ private:
 	int currentTask;        // time slice holding task
 	int deadlock;           // deadlock flag
 	int progInt;            // 'program interrupt' flag
-	int contextSwitchFlag;  // enables/disables context switch
+	// int contextSwitchFlag;  // enables/disables context switch
 	int endOfTimeSlice;     // indicates that has to be a context switch as soon as possible
 		// a pointer to the new timer interrupt handler
 	void interrupt ( *timerInterruptHandler)(...);
@@ -150,6 +155,8 @@ public:
 	void setError();
 	int getError();
 	void reDeclare(int taskNum);
+	Task getContextTask(int taskNum);
+	void setPriority(int taskum, int priority);
 	//*
 	void setOriginalPriority(int taskNum );
 	void setCurrentOriginalPriority();

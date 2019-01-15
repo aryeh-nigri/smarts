@@ -30,7 +30,7 @@ Parallelism::Parallelism()
 	activeTasks = 0;
 	totalTasks = 0;
 	deadlock = false;
-	contextSwitchFlag = true;
+	// contextSwitchFlag = true;
 	endOfTimeSlice = true;
 	error = false;
 	allFinished = false;
@@ -72,6 +72,8 @@ void Parallelism::runTheTasks()
 	context[totalTasks].currentPriority = MAXINT;
 	context[totalTasks].name = 'I';
 	context[totalTasks].currentCycles = 0;
+	// context[totalTasks].contextSwitchFlag = 1;
+
 
 	currentTask = totalTasks;
 
@@ -165,24 +167,36 @@ int Parallelism::contextSwitchOn()
 	if (endOfTimeSlice) //is current time slice finished ?
 	{
 		endOfTimeSlice = false;
-		contextSwitchFlag = true;
+		// contextSwitchFlag = true;
+		context[currentTask].setContextSwitchOn();
 		callScheduler(); // return control to the scheduler
 		return 1;
 	}
-	contextSwitchFlag = true;
+	// contextSwitchFlag = true;
+	context[currentTask].setContextSwitchOn();
 	return 0;
 }
 
 void Parallelism::contextSwitchOff()
 // Disable context switch
 {
-	contextSwitchFlag = false;
+	// contextSwitchFlag = false;
+	context[currentTask].setContextSwitchOff();
+
 }
 
 int Parallelism::getContextSwitch()
 {
-	return contextSwitchFlag;
+	// return contextSwitchFlag;
+	return context[currentTask].getContextSwitch();
+
 }
+//*
+Task Parallelism::getContextTask(int taskNum)
+{
+	return context[taskNum];
+}
+//*
 
 void Parallelism::setProgInt()
 // flag indicates to the extern function 'timerInterruptHandler'
@@ -355,7 +369,10 @@ void Parallelism::setOriginalPriority(int taskNum)
 	{
 		context[taskNum].currentPriority = context[taskNum].priority;	}
 }
-
+void Parallelism::setPriority(int taskNum, int priority)
+{
+	context[taskNum].setPriority(priority);
+}
 void Parallelism::setCurrentOriginalPriority()
 {
 	context[currentTask].currentPriority = context[currentTask].priority;
@@ -435,12 +452,6 @@ void Parallelism::handleTimers()
 	// redeclare or set error when needed to.
 	for (int count = 0; count < getTotalTasks(); count++)
 	{
-
-		// if (getCycles(count) <= 0)
-		// {
-		// 	continue;	// skip the finished ones
-		// }
-
 		if(getCycles(count) > 0)
 		{
 			if (getCurrentPriority(count) <= 0)
@@ -485,6 +496,7 @@ Task::Task()
 	sleepCount = 0;
 	currentPriority = priority = 0;
 	currentCycles = cycles = 0;
+	contextSwitchFlag = 1;
 }
 //-----------------------------------------------------
 
@@ -501,6 +513,7 @@ void Task::declare(void far *code, void far *userTaskEnd, char name, int period,
 	this->cycles = cycles;
 	this->currentCycles = cycles;
 	status = READY;
+	contextSwitchFlag = 1;
 	//*
 	// We save the Task's stack so we can re-run it more times.
 	for (int i = MaxStack - 1; i >= (MaxStack - 14); i--)
@@ -519,42 +532,26 @@ void Task::reDeclare(){
 	currentCycles--;
 	currentPriority = priority;
 	status = READY;
+	// contextSwitchFlag = 1;
 }
 //----------------------------------------------------
-// void Task::incrPriority( )
-// {
-//  	--currentPriority;
-// 	//*
-// 	cout<<"\nTask::incrPriority";
-// 	//*
-// }
-//----------------------------------------------------
-//*
-// int Task::getCurrentPriority(){
-// 	return currentPriority;
-// }
-//*
-//----------------------------------------------------
-//*
-// void Task::decreaseCycles(){
-// 	--currentCycles;
-// 	cout<<"\nTask::decreaseCycles";
-// }
-//*
-//----------------------------------------------------
-//*
-// int Task::getCycles(){
-// 	return currentCycles;
-// }
-//*
-//----------------------------------------------------
-// void Task::setOriginalPriority( )
-// {
-// 	currentPriority = priority;
-// 	//*
-// 	cout<<"\nTask::setOriginalPriority";
-// 	//*
-// }
+int Task::getContextSwitch()
+{
+	return contextSwitchFlag;
+}
+
+void Task::setContextSwitchOff()
+{
+	contextSwitchFlag = 0;
+}
+void Task::setContextSwitchOn()
+{
+	contextSwitchFlag = 1;
+}
+void Task::setPriority(int priority)
+{
+	this->priority = priority;
+}
 //----------------------------------------------------
 void Task::sleepDecr()
 // Decrements the sleep counter and update the task status accordingly
@@ -568,4 +565,5 @@ void Task::sleepDecr()
 	}
 }
 
-FILE* myOutput = fopen("output.txt", "w");
+// FILE* myOutput = fopen("problem.txt", "w");
+FILE* myOutput = fopen("solution.txt", "w");
