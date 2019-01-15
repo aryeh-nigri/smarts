@@ -30,7 +30,11 @@ Parallelism::Parallelism()
 	activeTasks = 0;
 	totalTasks = 0;
 	deadlock = false;
+<<<<<<< HEAD
 	// contextSwitchFlag = true;
+=======
+	//contextSwitchFlag = true;
+>>>>>>> e00d69394674b08fc7dac2d6b63da4f6a12306b4
 	endOfTimeSlice = true;
 	error = false;
 	allFinished = false;
@@ -167,6 +171,7 @@ int Parallelism::contextSwitchOn()
 	if (endOfTimeSlice) //is current time slice finished ?
 	{
 		endOfTimeSlice = false;
+<<<<<<< HEAD
 		// contextSwitchFlag = true;
 		context[currentTask].setContextSwitchOn();
 		callScheduler(); // return control to the scheduler
@@ -174,22 +179,41 @@ int Parallelism::contextSwitchOn()
 	}
 	// contextSwitchFlag = true;
 	context[currentTask].setContextSwitchOn();
+=======
+		context[currentTask].setContextSwitchOn();
+	 // contextSwitchFlag = true;
+		callScheduler(); // return control to the scheduler
+		return 1;
+	}
+	context[currentTask].setContextSwitchOn();
+	//contextSwitchFlag = true;
+>>>>>>> e00d69394674b08fc7dac2d6b63da4f6a12306b4
 	return 0;
 }
 
 void Parallelism::contextSwitchOff()
 // Disable context switch
 {
+<<<<<<< HEAD
 	// contextSwitchFlag = false;
 	context[currentTask].setContextSwitchOff();
 
+=======
+	context[currentTask].setContextSwitchOff();
+	//contextSwitchFlag = false;
+>>>>>>> e00d69394674b08fc7dac2d6b63da4f6a12306b4
 }
 
 int Parallelism::getContextSwitch()
 {
+<<<<<<< HEAD
 	// return contextSwitchFlag;
 	return context[currentTask].getContextSwitch();
 
+=======
+	return context[currentTask].getContextSwitch();
+	//return contextSwitchFlag;
+>>>>>>> e00d69394674b08fc7dac2d6b63da4f6a12306b4
 }
 //*
 Task Parallelism::getContextTask(int taskNum)
@@ -198,6 +222,10 @@ Task Parallelism::getContextTask(int taskNum)
 }
 //*
 
+Task Parallelism::getContextTask(int currentTask)
+{
+	return context[currentTask];
+}
 void Parallelism::setProgInt()
 // flag indicates to the extern function 'timerInterruptHandler'
 // that this is an internal SMARTS software interrupt call,
@@ -533,6 +561,17 @@ void Task::reDeclare(){
 	currentPriority = priority;
 	status = READY;
 	// contextSwitchFlag = 1;
+}
+int Task::getContextSwitch()
+{
+	return contextSwitchFlag;
+}
+
+void Task::setContextSwitchOff(){
+	contextSwitchFlag = 0;
+}
+void Task::setContextSwitchOn(){
+	contextSwitchFlag = 1;
 }
 //----------------------------------------------------
 int Task::getContextSwitch()
