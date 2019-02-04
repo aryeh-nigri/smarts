@@ -1,3 +1,8 @@
+/********************************/
+/*   Aryeh Nigri	338017866	*/
+/*   Zeev Noiman	937574		*/
+/********************************/
+
 /********************************************************************/
 /* A Small Real Time System for the Real-Time laboratory            */
 /* built by: A.Teitelbaum on an idea of H.G.Mendelbaum              */
@@ -8,9 +13,12 @@
 #include "SMARTS77.H"
 #include "Mutex.h"
 
-Mutex m1(1), m2(1);
-Mutex mA, mB, mC;
-Mutex mD, mE, mF;
+// Mutex m1(0, "M1"), m2(0, "M2");	// for problem.txt, send 0 for priorityInheritanceFlag
+Mutex m1(1, "M1"), m2(1, "M2");		// for solution.txt, send 1 for priorityInheritanceFlag
+
+Mutex mA(0, "MA"), mB(0, "MB"), mC(0, "MC");
+Mutex mD(0, "MD"), mE(0, "ME"), mF(0, "MF");
+
 Event AB, AC;
 Event DE, DF;
 
@@ -25,9 +33,6 @@ void a()
 	fprintf(myOutput, "\nTask A sending events\n");
 	AC.send('C', NULL, 0);
 	AB.send('B', NULL, 0);
-	// test for leveling mutex
-	// m1.acquire();
-	// m1.release();
 	for (int j = 0; j < 50; j++)
 	{
 		for (long i = 0; i < 600000; i++);//600.000 3 time clock
@@ -91,7 +96,7 @@ void d()
 	mD.acquire();
 	fprintf(myOutput, "\n *************   D Start    *********************\n");
 	mD.release();
-	fprintf(myOutput, "\nTask D acquiring M2\n");
+	// fprintf(myOutput, "\nTask D acquiring M2\n");
 	m2.acquire();
 	fprintf(myOutput, "\nTask D sending events\n");
 	DF.send('F', NULL, 0);
@@ -103,8 +108,12 @@ void d()
 		fprintf(myOutput, "D");
 		// m.release();
 	}
-	fprintf(myOutput, "\nTask D releasing M2\n");
+	// fprintf(myOutput, "\nTask D releasing M2\n");
 	m2.release();
+
+	// this for is to see the difference when we reset the priority inherited from F
+	for (long i = 0; i < 600000; i++);//600.000 3 time clock
+	
 	mD.acquire();
 	fprintf(myOutput, "\n *************   D Finish   *********************\n");
 	mD.release();
@@ -138,7 +147,7 @@ void f()
 	fprintf(myOutput, "\nTask F waiting event\n");
 	DF.wait('D');
 	fprintf(myOutput, "\nTask F received event\n");
-	fprintf(myOutput, "\nTask F acquiring M2\n");
+	// fprintf(myOutput, "\nTask F acquiring M2\n");
 	m2.acquire();
 	for (int j = 0; j < 10; j++)
 	{
@@ -147,7 +156,7 @@ void f()
 		fprintf(myOutput, "F");
 		// m.release();
 	}
-	fprintf(myOutput, "\nTask F releasing M2\n");
+	// fprintf(myOutput, "\nTask F releasing M2\n");
 	m2.release();
 	mF.acquire();
 	fprintf(myOutput, "\n *************   F Finish   *********************\n");
@@ -160,13 +169,19 @@ void main()
 	// SMARTS.externalFunctions(timerInterruptHandler, scheduler, myTaskEnd, roundRobin);
 	// SMARTS.externalFunctions(timerInterruptHandler, scheduler, myTaskEnd, EDF);
 	SMARTS.externalFunctions(timerInterruptHandler, scheduler, myTaskEnd, RMS);
+
 	SMARTS.declareTask(a, 'A', 402, 1);
 	SMARTS.declareTask(b, 'B', 401, 1);
 	SMARTS.declareTask(c, 'C', 400, 1);
 	
-	// SMARTS.declareTask(d, 'D', 300, 1);
-	// SMARTS.declareTask(e, 'E', 301, 1);
-	// SMARTS.declareTask(f, 'F', 302, 1);
+	SMARTS.declareTask(d, 'D', 302, 1);
+	SMARTS.declareTask(e, 'E', 301, 1);
+	SMARTS.declareTask(f, 'F', 300, 1);
+
+	fprintf(myOutput, "/********************************/\n");
+	fprintf(myOutput, "/*   Aryeh Nigri	338017866	*/\n");
+	fprintf(myOutput, "/*   Zeev Noiman	937574		*/\n");
+	fprintf(myOutput, "/********************************/\n\n");
 
 	SMARTS.runTheTasks();
 }
@@ -208,73 +223,5 @@ CABCABCABCAB
 OUTPUT EDF:
 *************   A Start    *********************
 AAAA
-
-*/
-
-
-
-
-
-/*
-
-void a()
-{
-	SMARTS.contextSwitchOff();
-	fprintf(myOutput, "\n *************   A Start    *********************\n");
-	// cout << "\n *************   A Start    *********************\n";
-	SMARTS.contextSwitchOn();
-	for (int j = 0; j < 10; j++)
-	{
-		for (long i = 0; i < 600000; i++);//600.000 3 time clock
-		SMARTS.contextSwitchOff();
-		fprintf(myOutput, "A");
-		// cout << "A";//<<j;
-		SMARTS.contextSwitchOn();
-	}
-	SMARTS.contextSwitchOff();
-	fprintf(myOutput, "\n *************   A Finish   *********************\n");
-	// cout << "\n *************   A Finish   *********************\n";
-	SMARTS.contextSwitchOn();
-}
-
-void b()
-{
-	SMARTS.contextSwitchOff();
-	fprintf(myOutput, "\n *************   B Start    *********************\n");
-	// cout << "\n *************   B Start    *********************\n";
-	SMARTS.contextSwitchOn();
-	for (int j = 0; j < 10; j++)
-	{
-		for (long i = 0; i < 600000; i++);
-		SMARTS.contextSwitchOff();
-		fprintf(myOutput, "B");
-		// cout << "B";
-		SMARTS.contextSwitchOn();
-	}
-	SMARTS.contextSwitchOff();
-	fprintf(myOutput, "\n *************   B Finish   *********************\n");
-	// cout << "\n *************   B Finish   *********************\n";
-	SMARTS.contextSwitchOn();
-}
-
-void c()
-{
-	SMARTS.contextSwitchOff();
-	fprintf(myOutput, "\n *************   C Start    *********************\n");
-	// cout << "\n *************   C Start    *********************\n";
-	SMARTS.contextSwitchOn();
-	for (int j = 0; j < 10; j++)
-	{
-		for (long i = 0; i < 600000; i++);
-		SMARTS.contextSwitchOff();
-		fprintf(myOutput, "C");
-		// cout << "C";
-		SMARTS.contextSwitchOn();
-	}
-	SMARTS.contextSwitchOff();
-	fprintf(myOutput, "\n *************   C Finish   *********************\n");
-	// cout << "\n *************   C Finish   *********************\n";
-	SMARTS.contextSwitchOn();
-}
 
 */

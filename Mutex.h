@@ -1,3 +1,8 @@
+/********************************/
+/*   Aryeh Nigri	338017866	*/
+/*   Zeev Noiman	937574		*/
+/********************************/
+
 #ifndef MUTEX_H
 #define MUTEX_H
 
@@ -16,27 +21,34 @@ class Mutex
     int owner;
     int level;
     int priorityInheritanceFlag;
+    int originalPriority;
+    int priorityDidChanged;
+    char* name;
     PriorityQueue *waitingList;
 
   public:
-    Mutex(int inheritance);
+    Mutex(int inheritance, char* name);
     ~Mutex();
     void acquire();
     void release();
 };
 
-Mutex::Mutex(int inheritance = 0)
+Mutex::Mutex(int inheritance = 0, char* name = "default")
 {
     s = 1;
     owner = -1;
     level = 0;
     priorityInheritanceFlag = inheritance;
+    // originalPriority = 0;
+    priorityDidChanged = 0;
+    this->name = name;
     waitingList = new PriorityQueue();
 }
 
 Mutex::~Mutex()
 {
     delete waitingList;
+    delete name;
 }
 
 // Acquire:
@@ -57,24 +69,27 @@ void Mutex::acquire()
     int currentTask = SMARTS.getCurrentTask();
     if (s == 1 || owner == currentTask)
     {
-        fprintf(myOutput, "\n*** Task %c ACQUIRING mutex ***\n", SMARTS.getName(currentTask));
+        fprintf(myOutput, "\n*** %s: ACQUIRED by Task %c ***\n", name, SMARTS.getName(currentTask));
         s = 0;
     }
     else
     {
-        fprintf(myOutput, "\n*** Task %c acquired busy mutex, SUSPENDING IT ***\n", SMARTS.getName(currentTask));
+        fprintf(myOutput, "\n*** %s: ACQUIRED by Task %c, but OWNER is Task %c ***\n", name, SMARTS.getName(currentTask), SMARTS.getName(owner));
         waitingList->push(currentTask);
         if (priorityInheritanceFlag)
         {
             int priority = SMARTS.getPriority(currentTask);
-            if (priority < SMARTS.getPriority(owner))
+            int ownerPriority = SMARTS.getPriority(owner);
+            if (priority < ownerPriority)
             {
+                priorityDidChanged = 1;
+                originalPriority = ownerPriority;
+                fprintf(myOutput, "\n*** %s: Task %c INHERITING priority from Task %c ***\n", name, SMARTS.getName(owner), SMARTS.getName(currentTask));
                 SMARTS.setPriority(owner, priority);
-                fprintf(myOutput, "\n*** Task %c INHERITING priority from Task %c ***\n", SMARTS.getName(owner), SMARTS.getName(currentTask));
             }
         }
+        fprintf(myOutput, "\n*** %s: SUSPENDING Task %c ***\n", name, SMARTS.getName(currentTask));
         SMARTS.suspended();
-        // fprintf(myOutput, "*** Task %c acquired busy mutex, SUSPENDING IT ***", SMARTS.getName(currentTask));
     }
     owner = currentTask;
     level++;
@@ -107,17 +122,25 @@ void Mutex::release()
     {
         if (--level)
         {
-            fprintf(myOutput, "\n*** Task %c DECREASING LEVEL to %i ***\n", SMARTS.getName(currentTask), level);            
+            fprintf(myOutput, "\n*** %s: Task %c DECREASING LEVEL to %i ***\n", name, SMARTS.getName(currentTask), level);            
             return;
         }
         else
         {
+            // resets the priority when it was inherited
+            if(priorityDidChanged){
+                SMARTS.setPriority(owner, originalPriority);
+                priorityDidChanged = 0;
+            }
+
+            fprintf(myOutput, "\n*** %s: RELEASED by Task %c ***\n", name, SMARTS.getName(owner));
+
             owner = -1;
-            fprintf(myOutput, "\n*** Task %c RELEASING mutex ***\n", SMARTS.getName(currentTask));
+            
             if(!waitingList->empty())// if (numberSuspended > 0)
             {
                 int taskNum = waitingList->pop();
-                fprintf(myOutput, "\n*** RESUMING Task %c ***\n", SMARTS.getName(taskNum));
+                fprintf(myOutput, "\n*** %s: RESUMING Task %c ***\n", name, SMARTS.getName(taskNum));
                 SMARTS.resume(taskNum);
             }
             else

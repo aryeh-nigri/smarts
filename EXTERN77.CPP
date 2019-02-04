@@ -1,3 +1,8 @@
+/********************************/
+/*   Aryeh Nigri	338017866	*/
+/*   Zeev Noiman	937574		*/
+/********************************/
+
 /*****************************************************************/
 /* A Small Real Time System for the Real-Time laboratory         */
 /* built by: A.Teitelbaum on an idea of H.G.Mendelbaum           */
@@ -61,29 +66,6 @@ void far interrupt timerInterruptHandler(...)
 	
 		// fprintf(myOutput, "ANTES DO IF getContextTask()\n");
 
-    
-	if(!SMARTS.getProgInt()){ //if it was called by the timer interrupt, we have to verify the flag of the current task,
-	    
-		//if we can make context switch, so we store the variables of the current task and call the scheduller			      
-		if(SMARTS.getContextTask(SMARTS.getCurrentTask()).getContextSwitch()){ 
-			SMARTS.setCurrentStack(StackSegAct, StackPtrAct);
-			SMARTS.restoreSchedStack(); // prepare activation of the task "scheduler"
-			SMARTS.getSchedStack(StackSegAct, StackPtrAct);
-			asm mov ax, StackSegAct;
-			asm mov ss, ax;
-			asm mov sp, StackPtrAct;	
-		}
-		//else we only get back to the current task
-	}
-	else{ //if it is a software prog interrupt, we store the variables of the current task and call the scheduller
-		SMARTS.setCurrentStack(StackSegAct, StackPtrAct);
-		SMARTS.restoreSchedStack(); // prepare activation of the task "scheduler"
-		SMARTS.getSchedStack(StackSegAct, StackPtrAct);
-		asm mov ax, StackSegAct;
-		asm mov ss, ax;
-		asm mov sp, StackPtrAct;
-	}
-	/*
 	// if the 'context switch' flag=true, save the current task variables
 	// and call the 'scheduler'
 	// if (SMARTS.getContextSwitch()) // save stack addr of interrupted task in current stack
@@ -97,7 +79,6 @@ void far interrupt timerInterruptHandler(...)
 		asm mov ss, ax;
 		asm mov sp, StackPtrAct;
 	}
-<<<<<<< HEAD
 	else if (SMARTS.getProgInt())
 	{
 		// fprintf(myOutput, "ELSE IF getContextTask()\n");
@@ -111,9 +92,6 @@ void far interrupt timerInterruptHandler(...)
 
 	SMARTS.resetProgInt(); //else it is a software "prog interrupt". reset this flag
 		
-=======
-	*/
->>>>>>> e00d69394674b08fc7dac2d6b63da4f6a12306b4
 	// else if 'context switch' flag=false set 'end of time slice' flag
 	//	else
 	//	{

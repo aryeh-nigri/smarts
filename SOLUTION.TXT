@@ -1,0 +1,368 @@
+/********************************/
+/*   Aryeh Nigri	338017866	*/
+/*   Zeev Noiman	937574		*/
+/********************************/
+
+
+*** MF: ACQUIRED by Task F ***
+
+ *************   F Start    *********************
+
+*** MF: RELEASED by Task F ***
+
+Task F waiting event
+
+*** ME: ACQUIRED by Task E ***
+
+ *************   E Start    *********************
+
+*** ME: RELEASED by Task E ***
+
+Task E waiting event
+
+*** MD: ACQUIRED by Task D ***
+
+ *************   D Start    *********************
+
+*** MD: RELEASED by Task D ***
+
+*** M2: ACQUIRED by Task D ***
+
+Task D sending events
+
+Task F received event
+
+*** M2: ACQUIRED by Task F, but OWNER is Task D ***
+
+*** M2: Task D INHERITING priority from Task F ***
+
+*** M2: SUSPENDING Task F ***
+DDDDDDDDDD
+*** M2: RELEASED by Task D ***
+
+*** M2: RESUMING Task F ***
+FFFFFFFFFF
+*** M2: RELEASED by Task F ***
+
+*** MF: ACQUIRED by Task F ***
+
+ *************   F Finish   *********************
+
+*** MF: RELEASED by Task F ***
+
+Task E received event
+
+*** ME: ACQUIRED by Task E ***
+E
+*** ME: RELEASED by Task E ***
+
+*** ME: ACQUIRED by Task E ***
+E
+*** ME: RELEASED by Task E ***
+
+*** ME: ACQUIRED by Task E ***
+E
+*** ME: RELEASED by Task E ***
+
+*** ME: ACQUIRED by Task E ***
+E
+*** ME: RELEASED by Task E ***
+
+*** ME: ACQUIRED by Task E ***
+E
+*** ME: RELEASED by Task E ***
+
+*** ME: ACQUIRED by Task E ***
+E
+*** ME: RELEASED by Task E ***
+
+*** ME: ACQUIRED by Task E ***
+E
+*** ME: RELEASED by Task E ***
+
+*** ME: ACQUIRED by Task E ***
+E
+*** ME: RELEASED by Task E ***
+
+*** ME: ACQUIRED by Task E ***
+E
+*** ME: RELEASED by Task E ***
+
+*** ME: ACQUIRED by Task E ***
+E
+*** ME: RELEASED by Task E ***
+
+*** ME: ACQUIRED by Task E ***
+
+ *************   E Finish   *********************
+
+*** ME: RELEASED by Task E ***
+
+*** MD: ACQUIRED by Task D ***
+
+ *************   D Finish   *********************
+
+*** MD: RELEASED by Task D ***
+
+*** MC: ACQUIRED by Task C ***
+
+ *************   C Start    *********************
+
+*** MC: RELEASED by Task C ***
+
+Task C waiting event
+
+*** MB: ACQUIRED by Task B ***
+
+ *************   B Start    *********************
+
+*** MB: RELEASED by Task B ***
+
+Task B waiting event
+
+*** MA: ACQUIRED by Task A ***
+
+ *************   A Start    *********************
+
+*** MA: RELEASED by Task A ***
+
+*** M1: ACQUIRED by Task A ***
+
+Task A sending events
+
+Task C received event
+
+*** M1: ACQUIRED by Task C, but OWNER is Task A ***
+
+*** M1: Task A INHERITING priority from Task C ***
+
+*** M1: SUSPENDING Task C ***
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+*** M1: RELEASED by Task A ***
+
+*** M1: RESUMING Task C ***
+
+*** MA: ACQUIRED by Task A ***
+
+ *************   A Finish   *********************
+
+*** MA: RELEASED by Task A ***
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+*** M1: RELEASED by Task C ***
+
+*** MC: ACQUIRED by Task C ***
+
+ *************   C Finish   *********************
+
+*** MC: RELEASED by Task C ***
+
+Task B received event
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+B
+*** MB: RELEASED by Task B ***
+
+*** MB: ACQUIRED by Task B ***
+
+ *************   B Finish   *********************
+
+*** MB: RELEASED by Task B ***
+
+
+Exit : finish
